@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Кошик - Майстерня Сну</title>
+    <style>
+        body { 
+            background: #F5F0E1;
+            color: #000000; 
+            font-family: Montserrat, Arial, sans-serif; 
+            margin: 0; 
+            transition: all 0.3s ease;
+            min-height: 100vh; /* Мінімальна висота сторінки - вся висота екрану */
+            display: flex;
+            flex-direction: column; /* Вертикальне розміщення елементів */
+        }
+        .nav { 
+            background: #000000; 
+            padding: 10px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1); 
+        }
+        .nav a { 
+            color: white; 
+            margin: 0 15px; 
+            text-decoration: none; 
+            font-size: 16px; 
+            transition: color 0.3s, transform 0.3s; 
+        }
+        .nav a:hover { 
+            color: #EDE4E0; 
+            transform: scale(1.1); 
+        }
+        .content { 
+            padding: 20px; 
+            text-align: center; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            animation: fadeIn 0.5s forwards 0.2s;
+            flex: 1; /* Розтягується, щоб займати доступний простір */
+        }
+        .social-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 0 20px;
+        }
+        .social-icons-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin-right: 20px;
+            background: transparent;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+        .social-icons img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        .social-icons .viber-icon img {
+            width: 38px;
+            height: 38px;
+        }
+        .cart-icon {
+            width: 40px;
+            height: 40px;
+            background: #8B7355;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .cart-icon:hover {
+            background: rgba(139, 115, 85, 0.8);
+            transform: scale(1.1);
+        }
+        .cart-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        #cart-items {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1);
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #EDE4E0;
+            transition: background 0.3s;
+        }
+        .cart-item:hover {
+            background: #f9f6f1;
+        }
+        .cart-item span {
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        .cart-item input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #8B7355;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .cart-item button {
+            background: #8B7355;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .cart-item button:hover {
+            background: rgba(139, 115, 85, 0.8);
+        }
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 15px;
+        }
+        .cart-item-details {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .empty-cart-message {
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+        }
+        .cta-button {
+            background: #8B7355;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        .cta-button:hover {
+            background: rgba(139, 115, 85, 0.8);
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background-color: #8B7355;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .quantity-btn:hover {
+            background-color: rgba(139, 115, 85, 0.8);
+        }
+        .quantity-display {
+            font-size: 16px;
+            min-width: 30px;
+            text-align: center;
+        }
+        .footer {
+            background: #000000;
+            padding: 15px 10px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            width: 100%;
+            margin-top: auto; /* Прикріплює футер до низу контейнера */
+        }
+        .footer > * {
+            margin: 10px 0;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">Головна</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="contacts.html">Контакти</a>
+    </div>
+    <div class="content">
+        <div class="social-icons">
+            <div class="social-icons-left">
+                <a href="https://instagram.com/yourprofile" target="_blank">
+                    <img src="icons/instagram.png" alt="Instagram">
+                </a>
+                <a href="https://t.me/vykusia" target="_blank">
+                    <img src="icons/telegram.png" alt="Telegram">
+                </a>
+                <a href="viber://chat?number=yournumber" target="_blank" class="viber-icon">
+                    <img src="icons/viber.png" alt="Viber">
+                </a>
+                <a href="https://facebook.com/yourprofile" target="_blank">
+                    <img src="icons/facebook.png" alt="Facebook">
+                </a>
+            </div>
+            <div class="cart-icon">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+            </div>
+        </div>
+        <h1>Кошик</h1>
+        <div id="cart-items"></div>
+        <button class="cta-button" onclick="window.location.href='catalog.html'">Повернутися до каталогу</button>
+    </div>
+    <div class="footer">
+        <p>Тел.: +380 67 860 25 07, Email: lahman.prom@gmail.com</p>
+        <p>Працюємо: Пн-Пт 09:00-19:00, Сб-Нд 10:00-16:00</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Сторінка кошика завантажена');
+            renderCart();
+            
+            // Додаємо обробники подій
+            var cartItemsDiv = document.getElementById('cart-items');
+            
+            cartItemsDiv.addEventListener('click', function(e) {
+                // Обробник для кнопки видалення
+                if (e.target.classList.contains('delete-btn')) {
+                    var index = parseInt(e.target.dataset.index);
+                    var cartData = sessionStorage.getItem('cart_data');
+                    if (cartData) {
+                        var cart = JSON.parse(cartData);
+                        cart.splice(index, 1);
+                        sessionStorage.setItem('cart_data', JSON.stringify(cart));
+                        // Оновлюємо відображення кошика без перезавантаження
+                        renderCart();
+                        // Оновлюємо лічильник в шапці
+                        updateCartCounter();
+                    }
+                }
+                
+                // Обробник для кнопки "плюс"
+                if (e.target.classList.contains('plus-btn')) {
+                    var index = parseInt(e.target.dataset.index);
+                    var cartData = sessionStorage.getItem('cart_data');
+                    if (cartData) {
+                        var cart = JSON.parse(cartData);
+                        cart[index].quantity = (cart[index].quantity || 1) + 1;
+                        sessionStorage.setItem('cart_data', JSON.stringify(cart));
+                        renderCart();
+                        // Оновлюємо лічильник в шапці
+                        updateCartCounter();
+                    }
+                }
+                
+                // Обробник для кнопки "мінус"
+                if (e.target.classList.contains('minus-btn')) {
+                    var index = parseInt(e.target.dataset.index);
+                    var cartData = sessionStorage.getItem('cart_data');
+                    if (cartData) {
+                        var cart = JSON.parse(cartData);
+                        if (cart[index].quantity > 1) {
+                            cart[index].quantity -= 1;
+                            sessionStorage.setItem('cart_data', JSON.stringify(cart));
+                            renderCart();
+                            // Оновлюємо лічильник в шапці
+                            updateCartCounter();
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Функція для оновлення лічильника товарів
+        function updateCartCounter() {
+            var counter = document.querySelector('.cart-counter');
+            if (!counter) return;
+            
+            try {
+                var cartData = sessionStorage.getItem('cart_data');
+                
+                if (cartData) {
+                    var cart = JSON.parse(cartData);
+                    
+                    if (Array.isArray(cart) && cart.length > 0) {
+                        var total = 0;
+                        for (var i = 0; i < cart.length; i++) {
+                            total += cart[i].quantity || 0;
+                        }
+                        
+                        counter.textContent = total;
+                        counter.style.display = 'flex';
+                        console.log('Оновлено лічильник:', total);
+                    } else {
+                        counter.style.display = 'none';
+                        console.log('Кошик порожній');
+                    }
+                } else {
+                    counter.style.display = 'none';
+                    console.log('Даних кошика немає');
+                }
+                
+            } catch (e) {
+                console.error('Помилка при оновленні лічильника:', e);
+            }
+        }
+        
+        // Функція для відображення вмісту кошика
+        function renderCart() {
+            var cartItemsDiv = document.getElementById('cart-items');
+            
+            // Отримуємо дані кошика
+            var cartData = sessionStorage.getItem('cart_data');
+            var cart = [];
+            
+            if (cartData) {
+                try {
+                    cart = JSON.parse(cartData);
+                } catch (e) {
+                    console.error('Помилка при обробці даних кошика:', e);
+                }
+            }
+            
+            // Перевіряємо, чи є товари в кошику
+            if (!cart || !Array.isArray(cart) || cart.length === 0) {
+                cartItemsDiv.innerHTML = '<div class="empty-cart-message">Ваш кошик порожній</div>';
+                return;
+            }
+            
+            // Відображаємо товари
+            var totalSum = 0;
+            cartItemsDiv.innerHTML = '';
+            
+            for (var i = 0; i < cart.length; i++) {
+                var item = cart[i];
+                var quantity = item.quantity || 1;
+                var itemTotal = item.price * quantity;
+                totalSum += itemTotal;
+                
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                
+                // Додаємо зображення, якщо воно є
+                var imageHtml = '';
+                if (item.imageUrl) {
+                    imageHtml = '<img src="' + item.imageUrl + '" alt="' + item.name + '" class="cart-item-image">';
+                }
+                
+                // Використовуємо унікальний ідентифікатор (якщо є) або індекс як резервний варіант
+                var itemId = item.id || i;
+                
+                itemDiv.innerHTML = `
+                    ${imageHtml}
+                    <div class="cart-item-details">
+                        <p><strong>${item.name}</strong></p>
+                        <p>${item.price} грн</p>
+                    </div>
+                    <div class="cart-item-controls">
+                        <div class="quantity-control">
+                            <button class="quantity-btn minus-btn" data-index="${i}" data-id="${itemId}">-</button>
+                            <div class="quantity-display">${quantity}</div>
+                            <button class="quantity-btn plus-btn" data-index="${i}" data-id="${itemId}">+</button>
+                        </div>
+                        <span>${itemTotal} грн</span>
+                        <button class="delete-btn" data-index="${i}" data-id="${itemId}">Видалити</button>
+                    </div>
+                `;
+                
+                cartItemsDiv.appendChild(itemDiv);
+            }
+            
+            // Додаємо загальну суму
+            var totalDiv = document.createElement('div');
+            totalDiv.style.textAlign = 'right';
+            totalDiv.style.marginTop = '20px';
+            totalDiv.style.fontWeight = 'bold';
+            totalDiv.style.fontSize = '18px';
+            totalDiv.innerHTML = `Загальна сума: ${totalSum} грн`;
+            cartItemsDiv.appendChild(totalDiv);
+        }
+    </script>
+</body>
+</html>

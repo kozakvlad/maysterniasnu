@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Контакти - Майстерня Сну</title>
+    <style>
+        body { 
+            background: #F5F0E1; /* Змінено на такий самий фон, як на інших сторінках */
+            color: #000000; 
+            font-family: Montserrat, Arial, sans-serif; 
+            margin: 0; 
+            transition: all 0.3s ease; 
+            min-height: 100vh; /* Мінімальна висота сторінки - вся висота екрану */
+            display: flex;
+            flex-direction: column; /* Вертикальне розміщення елементів */
+        }
+        .nav { 
+            background: #000000; 
+            padding: 10px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1); 
+        }
+        .nav a { 
+            color: white; 
+            margin: 0 15px; 
+            text-decoration: none; 
+            font-size: 16px; 
+            transition: color 0.3s, transform 0.3s; 
+        }
+        .nav a:hover { 
+            color: #EDE4E0; 
+            transform: scale(1.1); 
+        }
+        .content { 
+            padding: 20px; 
+            text-align: center; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            animation: fadeIn 0.5s forwards 0.2s; 
+            flex: 1; /* Розтягується, щоб займати доступний простір */
+        }
+        .contact-info { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #FFFFFF; 
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1); 
+        }
+        .contact-info h2 { 
+            font-size: 24px; 
+            margin-bottom: 20px; 
+            color: #000000; 
+        }
+        .contact-info p { 
+            font-size: 16px; 
+            margin: 10px 0; 
+            color: #000000; 
+        }
+        .cta-button { 
+            background: #8B7355; /* Змінено на коричневий колір, як на інших сторінках */
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            margin-top: 20px;
+            border-radius: 5px; /* Додано закруглені кути як на інших сторінках */
+        }
+        .cta-button:hover { 
+            background: rgba(139, 115, 85, 0.8); /* Змінено на такий же стиль наведення, як на інших сторінках */
+            color: white; 
+        }
+        .footer { 
+            background: #000000; 
+            padding: 15px 10px;
+            text-align: center; 
+            color: white; 
+            font-size: 14px; 
+            width: 100%;
+            margin-top: auto; /* Прикріплює футер до низу контейнера */
+        }
+        .footer > * { 
+            margin: 10px 0;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">Головна</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="contacts.html">Контакти</a>
+    </div>
+    <div class="content">
+        <h1>Контакти Майстерні Сну</h1>
+        <p>Зв'яжіться з нами для консультації або замовлення</p>
+        <div class="contact-info">
+            <h2>Наші контакти</h2>
+            <p><strong>Телефон:</strong> +380 123 456 789</p>
+            <p><strong>Email:</strong> shop@textile.ua</p>
+            <p><strong>Адреса:</strong> вул. Текстильна, 15, м. Київ, Україна</p>
+            <p><strong>Графік роботи:</strong> Пн-Пт 9:00-18:00, Сб-Нд 10:00-16:00</p>
+            <button class="cta-button" onclick="window.location.href='index.html'">Повернутися на головну</button>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Маєте питання? Зв'яжіться з нами: Тел: +380 123 456 789 | Email: shop@textile.ua | Працюємо: Пн-Пт 9:00-18:00, Сб-Нд 10:00-16:00</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог - Майстерня Сну</title>
+    <style>
+        body { 
+            background: #F5F0E1;
+            color: #000000; 
+            font-family: Montserrat, Arial, sans-serif; 
+            margin: 0; 
+            transition: all 0.3s ease;
+            min-height: 100vh; /* Мінімальна висота сторінки - вся висота екрану */
+            display: flex;
+            flex-direction: column; /* Вертикальне розміщення елементів */
+        }
+        .nav { 
+            background: #000000; 
+            padding: 10px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1); 
+        }
+        .nav a { 
+            color: white; 
+            margin: 0 15px; 
+            text-decoration: none; 
+            font-size: 16px; 
+            transition: color 0.3s, transform 0.3s; 
+        }
+        .nav a:hover { 
+            color: #EDE4E0; 
+            transform: scale(1.1); 
+        }
+        .content { 
+            padding: 20px; 
+            text-align: center; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            animation: fadeIn 0.5s forwards 0.2s;
+            flex: 1; /* Розтягується, щоб займати доступний простір */
+        }
+        .catalog-grid { 
+            display: flex; /* Гнучка сітка для 3 товарів у ряд */
+            justify-content: center; /* Центруємо вміст */
+            flex-wrap: wrap; /* Дозволяємо переносити на новий ряд, якщо екрани малі */
+            gap: 20px; /* Відступи між товарами */
+            padding: 20px; 
+            max-width: 1200px; /* Максимальна ширина */
+            margin: 0 auto; /* Центруємо контейнер */
+        }
+        .catalog-item { 
+            flex: 0 0 calc(33.33% - 20px); /* 3 товари в ряд, віднімаємо gap */
+            background: #FFFFFF; 
+            padding: 15px; 
+            border-radius: 8px; /* Закруглені кути, як на зразку */
+            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1); 
+            text-align: center; 
+            box-sizing: border-box; /* Враховуємо padding у ширину */
+            position: relative; /* Для позиціонування кнопки кошика */
+            padding-bottom: 60px; /* Місце для кнопки кошика */
+        }
+        .catalog-item img { 
+            width: 100%; /* Фіксуємо ширину на 100% від контейнера */
+            height: 300px; /* Збільшені зображення у висоту, як на зразку */
+            object-fit: contain; /* Зберігаємо повне зображення, додаючи порожні області, якщо потрібно */
+            border-radius: 8px 8px 0 0; /* Закруглені кути лише зверху */
+            image-rendering: high-quality; /* Покращуємо рендеринг для високої якості */
+            -webkit-backface-visibility: hidden; /* Уникаємо артефактів при анімації */
+            backface-visibility: hidden; /* Уникаємо артефактів при анімації */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Плавна анімація при наведенні */
+        }
+        .catalog-item img:hover { 
+            transform: scale(1.05); /* Збільшення зображення на 5% при наведенні */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Додаємо тінь при наведенні */
+        }
+        .catalog-item h3 { 
+            font-size: 16px; /* Розмір шрифту назви, як на зразку */
+            margin: 10px 0 5px; 
+            color: #000000; 
+        }
+        .catalog-item .price { 
+            font-size: 18px; /* Більший шрифт для ціни, як на зразку */
+            font-weight: bold; 
+            color: #000000; 
+            margin: 5px 0; 
+        }
+        .catalog-item .add-to-cart { 
+            background: #8B7355; 
+            color: white; 
+            width: 40px; /* Фіксована ширина для круглої кнопки */
+            height: 40px; /* Фіксована висота для круглої кнопки */
+            border: none; 
+            border-radius: 50%; /* Робимо кнопку круглою */
+            cursor: pointer; 
+            transition: background 0.3s, transform 0.3s; 
+            position: absolute; /* Абсолютне позиціонування */
+            bottom: 15px; /* Відступ знизу */
+            right: 15px; /* Відступ справа */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .catalog-item .add-to-cart:hover { 
+            background: rgba(139, 115, 85, 0.8);
+            transform: scale(1.1);
+        }
+        .catalog-item .add-to-cart img {
+            width: 20px;
+            height: 20px;
+        }
+        .footer { 
+            background: #000000; 
+            padding: 15px 10px; /* Залишаємо меншу висоту, як у попередній версії */
+            text-align: center; 
+            color: white; 
+            font-size: 14px; 
+            width: 100%;
+            margin-top: auto; /* Прикріплює футер до низу контейнера */
+        }
+        .footer > * { 
+            margin: 10px 0; /* Залишаємо відступи для коректного вигляду */
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cta-button { 
+            background: #8B7355; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            margin-top: 0;
+        }
+        .cta-button:hover { 
+            background: rgba(139, 115, 85, 0.8);
+            color: white;
+        }
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #8B7355;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        .cart-icon:hover {
+            background: rgba(139, 115, 85, 0.8);
+            transform: scale(1.1);
+        }
+        .cart-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        .cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">Головна</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="contacts.html">Контакти</a>
+    </div>
+    <div class="cart-icon" onclick="window.location.href='kart.html'">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+        <div class="cart-counter">0</div>
+    </div>
+    <div class="content">
+        <h1>Каталог Майстерні Сну</h1>
+        <p>Найкращий текстиль для вашого дому</p>
+        <div class="catalog-grid">
+            <!-- Перший рядок -->
+            <div class="catalog-item">
+                <img src="images/photo1.jpg" alt="Продукт 1">
+                <h3>Натуральна бавовна</h3>
+                <p class="price">500 грн</p>
+                <button class="add-to-cart" title="Додати до кошика" onclick="return addToCartDirect(this, 'Натуральна бавовна', 500, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo2.jpg" alt="Продукт 2">
+                <h3>Шовк для постелі</h3>
+                <p class="price">800 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовк для постелі', 800, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo3.jpg" alt="Продукт 3">
+                <h3>Льон для кухні</h3>
+                <p class="price">350 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Льон для кухні', 350, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+
+            <!-- Другий рядок -->
+            <div class="catalog-item">
+                <img src="images/photo4.jpg" alt="Продукт 4">
+                <h3>Натуральна бавовна</h3>
+                <p class="price">500 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Натуральна бавовна', 500, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo5.jpg" alt="Продукт 5">
+                <h3>Шовк для постелі</h3>
+                <p class="price">800 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовк для постелі', 800, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo6.jpg" alt="Продукт 6">
+                <h3>Льон для кухні</h3>
+                <p class="price">350 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Льон для кухні', 350, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+
+            <!-- Третій рядок -->
+            <div class="catalog-item">
+                <img src="images/photo7.jpg" alt="Продукт 7">
+                <h3>Натуральна бавовна</h3>
+                <p class="price">500 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Натуральна бавовна', 500, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo8.jpg" alt="Продукт 8">
+                <h3>Шовк для постелі</h3>
+                <p class="price">800 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовк для постелі', 800, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo9.jpg" alt="Продукт 9">
+                <h3>Льон для кухні</h3>
+                <p class="price">350 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Льон для кухні', 350, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+
+            <!-- Четвертий рядок -->
+            <div class="catalog-item">
+                <img src="images/photo10.jpg" alt="Продукт 10">
+                <h3>Бавовняний комплект</h3>
+                <p class="price">650 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Бавовняний комплект', 650, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo11.jpg" alt="Продукт 11">
+                <h3>Шовковий текстиль</h3>
+                <p class="price">900 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовковий текстиль', 900, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo12.jpg" alt="Продукт 12">
+                <h3>Декоративний льон</h3>
+                <p class="price">420 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Декоративний льон', 420, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+
+            <!-- П'ятий рядок -->
+            <div class="catalog-item">
+                <img src="images/photo13.jpg" alt="Продукт 13">
+                <h3>Бавовна преміум</h3>
+                <p class="price">750 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Бавовна преміум', 750, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo14.jpg" alt="Продукт 14">
+                <h3>Шовк ультра</h3>
+                <p class="price">1200 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовк ультра', 1200, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo1.jpg" alt="Продукт 15">
+                <h3>Преміум льон</h3>
+                <p class="price">550 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Преміум льон', 550, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+
+            <!-- Шостий рядок -->
+            <div class="catalog-item">
+                <img src="images/photo2.jpg" alt="Продукт 16">
+                <h3>Бавовна ультра-м'яка</h3>
+                <p class="price">600 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Бавовна ультра-м\'яка', 600, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo3.jpg" alt="Продукт 17">
+                <h3>Шовк натуральний</h3>
+                <p class="price">950 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Шовк натуральний', 950, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+            <div class="catalog-item">
+                <img src="images/photo4.jpg" alt="Продукт 18">
+                <h3>Льон органічний</h3>
+                <p class="price">480 грн</p>
+                <button class="add-to-cart" onclick="return addToCartDirect(this, 'Льон органічний', 480, event)">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+                </button>
+            </div>
+        </div>
+        <script>
+            // Дуже простий код кошика
+            document.addEventListener('DOMContentLoaded', function() {
+                // Тест для перевірки сховища
+                try {
+                    // Перевіряємо, чи працює взагалі сховище
+                    sessionStorage.setItem('test', 'test');
+                    var test = sessionStorage.getItem('test');
+                    console.log('Тест сховища:', test);
+                    
+                    if (test === 'test') {
+                        console.log('Сховище працює коректно');
+                    } else {
+                        console.error('Сховище не працює правильно!');
+                    }
+                } catch (e) {
+                    console.error('Помилка при тестуванні сховища:', e);
+                }
+                
+                // Оновлюємо лічильник при завантаженні
+                updateCounter();
+            });
+            
+            // Додавання товару в кошик
+            function addToCartDirect(button, name, price, event) {
+                // Запобігаємо стандартній дії
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                console.log('Додаємо товар:', name, price);
+                
+                try {
+                    // Знаходимо елемент товару
+                    var itemElement = button.closest('.catalog-item');
+                    // Отримуємо URL зображення
+                    var imageUrl = itemElement.querySelector('img').src;
+                    
+                    // Отримуємо існуючий кошик
+                    var cart = [];
+                    var cartData = sessionStorage.getItem('cart_data');
+                    if (cartData) {
+                        try {
+                            cart = JSON.parse(cartData);
+                            if (!Array.isArray(cart)) {
+                                cart = [];
+                            }
+                        } catch (e) {
+                            console.error('Помилка при отриманні кошика:', e);
+                            cart = [];
+                        }
+                    }
+                    
+                    // Перевіряємо, чи є вже такий товар (за назвою І URL зображення)
+                    var existingItemIndex = -1;
+                    for (var i = 0; i < cart.length; i++) {
+                        if (cart[i].name === name && cart[i].imageUrl === imageUrl) {
+                            existingItemIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (existingItemIndex !== -1) {
+                        // Якщо товар вже є, збільшуємо кількість
+                        cart[existingItemIndex].quantity += 1;
+                    } else {
+                        // Інакше додаємо новий товар
+                        cart.push({
+                            name: name,
+                            price: price,
+                            quantity: 1,
+                            imageUrl: imageUrl,
+                            id: name + '_' + Date.now() // Додаємо унікальний ідентифікатор
+                        });
+                    }
+                    
+                    // Зберігаємо оновлений кошик
+                    sessionStorage.setItem('cart_data', JSON.stringify(cart));
+                    
+                    // Оновлюємо лічильник
+                    updateCounter();
+                    
+                } catch (e) {
+                    console.error('Помилка при додаванні товару:', e);
+                }
+                
+                return false;
+            }
+            
+            // Оновлення лічильника
+            function updateCounter() {
+                var counter = document.querySelector('.cart-counter');
+                if (!counter) return;
+                
+                try {
+                    var cartData = sessionStorage.getItem('cart_data');
+                    
+                    if (cartData) {
+                        var cart = JSON.parse(cartData);
+                        
+                        if (Array.isArray(cart) && cart.length > 0) {
+                            var total = 0;
+                            for (var i = 0; i < cart.length; i++) {
+                                total += cart[i].quantity || 0;
+                            }
+                            
+                            counter.textContent = total;
+                            counter.style.display = 'flex';
+                            console.log('Оновлено лічильник:', total);
+                        } else {
+                            counter.style.display = 'none';
+                            console.log('Кошик порожній');
+                        }
+                    } else {
+                        counter.style.display = 'none';
+                        console.log('Даних кошика немає');
+                    }
+                    
+                } catch (e) {
+                    console.error('Помилка при оновленні лічильника:', e);
+                }
+            }
+        </script>
+    </div>
+    <div class="footer">
+        <button class="cta-button" onclick="window.location.href='index.html'">Повернутися на головну</button>
+        <p>Маєте питання? Зв'яжіться з нами: Тел: +380 123 456 789 | Email: shop@textile.ua | Працюємо: Пн-Пт 9:00-18:00, Сб-Нд 10:00-16:00</p>
+    </div>
+</body>
+</html>
