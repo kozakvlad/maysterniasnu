@@ -2,286 +2,163 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Майстерня Сну - Головна</title>
+    <title>Майстерня Сну</title>
+    <!-- Tailwind CSS через CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B7355',
+                        secondary: '#A0522D',
+                        background: '#F5F0E1',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background: #F5F0E1; /* Новий колір фону */
-            color: #000000;
-            font-family: Montserrat, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            transition: all 0.3s ease;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            width: 100%;
-        }
-        .nav {
-            background: #000000; /* Чорне меню */
-            padding: 10px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(102, 102, 102, 0.1);
-            width: 100vw;
-            margin-left: calc(-50vw + 50%);
-            margin-right: calc(-50vw + 50%);
-            position: relative;
-            left: 50%;
-            right: 50%;
-            transform: translateX(-50%);
-        }
-        .nav a {
-            color: white;
-            margin: 0 15px;
-            text-decoration: none;
-            font-size: 16px;
-            transition: color 0.3s, transform 0.3s;
-        }
-        .nav a:hover {
-            color: #EDE4E0; /* Теплий акцент при наведенні */
-            transform: scale(1.1);
-        }
-        .content {
-            padding: 20px;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.5s forwards 0.2s;
-            flex: 1;
-        }
-        h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-        p.subtitle {
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        .slider {
-            max-width: 600px;
-            height: 600px;
-            margin: 0 auto;
-            overflow: hidden;
-            position: relative;
-            border: 2px solid #8B7355;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(139, 115, 85, 0.1);
-        }
-        .slide {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .slide img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        .slider-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(139, 115, 85, 0.6);
-            color: white;
-            border: none;
-            padding: 15px;
-            cursor: pointer;
-            z-index: 2;
-            transition: background 0.3s;
-            border-radius: 5px;
-        }
-        .slider-button:hover {
-            background: rgba(139, 115, 85, 0.8);
-        }
-        .prev {
-            left: 10px;
-        }
-        .next {
-            right: 10px;
-        }
-        .footer {
-            background: #000000; /* Чорний футер */
-            padding: 15px 10px;
-            text-align: center;
-            color: white;
-            font-size: 14px;
-            margin-top: auto;
-            width: 100vw;
-            margin-left: calc(-50vw + 50%);
-            margin-right: calc(-50vw + 50%);
-            position: relative;
-            left: 50%;
-            right: 50%;
-            transform: translateX(-50%);
-        }
-        .footer > * {
-            margin: 10px 0;
-        }
-        .cta-button {
-            background: #8B7355;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 20px;
-        }
-        .cta-button:hover {
-            background: rgba(139, 115, 85, 0.8);
-            color: white;
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .social-icons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 10px 0;
-            padding: 0 20px;
-        }
-        .social-icons-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .social-icons a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            margin-right: 20px;
-            background: transparent;
-            border-radius: 8px;
-            transition: transform 0.3s;
-        }
-        .social-icons img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-        }
-        .social-icons .viber-icon img {
-            width: 38px;
-            height: 38px;
-        }
-        .social-icons a:hover {
-            transform: scale(1.1);
-        }
-        .cart-icon {
-            position: static;
-            width: 40px;
-            height: 40px;
-            background: #8B7355;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.3s;
-        }
-        .cart-icon:hover {
-            background: rgba(139, 115, 85, 0.8);
-            transform: scale(1.1);
-        }
-        .cart-icon img {
-            width: 24px;
-            height: 24px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
     </style>
 </head>
-<body>
-    <div class="nav">
-        <a href="index.html">Головна</a>
-        <a href="catalog.html">Каталог</a>
-        <a href="contacts.html">Контакти</a>
-    </div>
-    <div class="content">
-        <div class="social-icons">
-            <div class="social-icons-left">
-                <a href="https://instagram.com/yourprofile" target="_blank">
-                    <img src="icons/instagram.png" alt="Instagram">
-                </a>
-                <a href="https://t.me/vykusia" target="_blank">
-                    <img src="icons/telegram.png" alt="Telegram">
-                </a>
-                <a href="viber://chat?number=yournumber" target="_blank" class="viber-icon">
-                    <img src="icons/viber.png" alt="Viber">
-                </a>
-                <a href="https://facebook.com/yourprofile" target="_blank">
-                    <img src="icons/facebook.png" alt="Facebook">
-                </a>
+<body class="bg-background font-['Montserrat'] text-black m-0 min-h-screen flex flex-col transition-all duration-300">
+    <header class="bg-primary text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Майстерня Сну</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-white hover:text-background transition-colors">Головна</a></li>
+                    <li><a href="catalog.html" class="text-white hover:text-background transition-colors">Каталог</a></li>
+                    <li><a href="contacts.html" class="text-white hover:text-background transition-colors">Контакти</a></li>
+                    <li>
+                        <a href="kart.html" class="relative text-white hover:text-background transition-colors">
+                            Кошик
+                            <span id="cart-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-6">
+        <section class="mb-12">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="md:flex">
+                    <div class="md:w-1/2">
+                        <img src="images/main_banner.jpg" alt="Текстиль для дому" class="w-full h-full object-cover">
+                    </div>
+                    <div class="md:w-1/2 p-8 flex flex-col justify-center">
+                        <h2 class="text-3xl font-bold mb-4 text-primary">Якісний текстиль для вашого дому</h2>
+                        <p class="text-gray-700 mb-6">Ми пропонуємо широкий асортимент високоякісного текстилю для вашого дому. Наші вироби виготовлені з натуральних матеріалів, які забезпечують комфорт та затишок.</p>
+                        <a href="catalog.html" class="inline-block bg-primary hover:bg-secondary text-white font-bold py-2 px-6 rounded-full transition-colors duration-300 self-start">Перейти до каталогу</a>
+                    </div>
+                </div>
             </div>
-            <div class="cart-icon" onclick="window.location.href='kart.html'">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjkiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMSIgcj0iMSI+PC9jaXJjbGU+PHBhdGggZD0iTTEgMWg0bDIuNjggMTMuMzlhMiAyIDAgMCAwIDIgMS42MWg5LjcyYTIgMiAwIDAgMCAyLTEuNjFMMjMgNkg2Ij48L3BhdGg+PC9zdmc+" alt="Кошик" style="filter: invert(1);">
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-primary text-center">Наші переваги</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-3 text-primary">Натуральні матеріали</h3>
+                    <p class="text-gray-700">Ми використовуємо тільки натуральні матеріали, які безпечні для здоров'я та приємні на дотик.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-3 text-primary">Висока якість</h3>
+                    <p class="text-gray-700">Наші вироби виготовлені з дотриманням найвищих стандартів якості та проходять ретельний контроль.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-3 text-primary">Широкий асортимент</h3>
+                    <p class="text-gray-700">У нашому каталозі ви знайдете різноманітні вироби для будь-якого інтер'єру та на будь-який смак.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold mb-6 text-primary text-center">Популярні товари</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="images/photo1.jpg" alt="Натуральна бавовна" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Натуральна бавовна</h3>
+                        <p class="text-gray-700 mb-4">Комплект постільної білизни з натуральної бавовни.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold">500 грн</span>
+                            <a href="catalog.html" class="bg-primary hover:bg-secondary text-white py-1 px-4 rounded-full text-sm transition-colors duration-300">Детальніше</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="images/photo2.jpg" alt="Шовк для постелі" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Шовк для постелі</h3>
+                        <p class="text-gray-700 mb-4">Елегантний комплект постільної білизни з шовку.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold">800 грн</span>
+                            <a href="catalog.html" class="bg-primary hover:bg-secondary text-white py-1 px-4 rounded-full text-sm transition-colors duration-300">Детальніше</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="images/photo3.jpg" alt="Льон для кухні" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Льон для кухні</h3>
+                        <p class="text-gray-700 mb-4">Набір кухонних рушників з натурального льону.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold">350 грн</span>
+                            <a href="catalog.html" class="bg-primary hover:bg-secondary text-white py-1 px-4 rounded-full text-sm transition-colors duration-300">Детальніше</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-primary text-white p-6 mt-auto">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-3">Майстерня Сну</h3>
+                    <p>Якісний текстиль для вашого дому</p>
+                </div>
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-3">Контакти</h3>
+                    <p>Телефон: +380 50 123 4567</p>
+                    <p>Email: info@maisterniasnu.ua</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Слідкуйте за нами</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
+                        <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
+                        <a href="#" class="text-white hover:text-background transition-colors">Telegram</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-white/30 text-center">
+                <p>&copy; 2023 Майстерня Сну. Всі права захищені.</p>
             </div>
         </div>
-        <h1>Майстерня Сну</h1>
-        <p class="subtitle">Створюємо затишок саме для вашого дому</p>
-        <div class="slider">
-            <button class="slider-button prev">←</button>
-            <button class="slider-button next">→</button>
-            <div class="slide"><img src="./images/photo10.jpg" alt="Текстиль 1" onerror="this.src='https://via.placeholder.com/1200x600'"></div>
-            <div class="slide"><img src="./images/photo11.jpg" alt="Текстиль 2" onerror="this.src='https://via.placeholder.com/1200x600'"></div>
-            <div class="slide"><img src="./images/photo12.jpg" alt="Текстиль 3" onerror="this.src='https://via.placeholder.com/1200x600'"></div>
-            <div class="slide"><img src="./images/photo13.jpg" alt="Текстиль 4" onerror="this.src='https://via.placeholder.com/1200x600'"></div>
-            <div class="slide"><img src="./images/photo14.jpg" alt="Текстиль 5" onerror="this.src='https://via.placeholder.com/1200x600'"></div>
-        </div>
-    </div>
-    <div class="footer">
-        <button class="cta-button" onclick="window.location.href='catalog.html'">Переглянути каталог</button>
-        <p>Тел.: +380 67 860 25 07, Email: lahman.prom@gmail.com</p>
-        <p>Працюємо: Пн-Пт 09:00-19:00, Сб-Нд 10:00-16:00</p>
-    </div>
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let slideIndex = 0;
-            const slides = document.getElementsByClassName("slide");
-            let slideTimer;
-            
-            showSlide(0);
-            startTimer();
-            
-            function showSlide(n) {
-                if (!slides || slides.length === 0) return;
+            // Оновлення лічильника кошика
+            function updateCartCounter() {
+                const cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
+                let totalItems = 0;
                 
-                if (n >= slides.length) {slideIndex = 0}
-                if (n < 0) {slideIndex = slides.length - 1}
+                cartData.forEach(item => {
+                    totalItems += item.quantity;
+                });
                 
-                for (let i = 0; i < slides.length; i++) {
-                    slides[i].style.display = "none";
-                }
-                
-                slides[slideIndex].style.display = "block";
+                document.getElementById('cart-counter').textContent = totalItems;
             }
             
-            function startTimer() {
-                clearInterval(slideTimer);
-                slideTimer = setInterval(() => {
-                    slideIndex++;
-                    showSlide(slideIndex);
-                }, 3000);
-            }
-            
-            document.querySelector('.prev').addEventListener('click', () => {
-                slideIndex--;
-                showSlide(slideIndex);
-                startTimer();
-            });
-            
-            document.querySelector('.next').addEventListener('click', () => {
-                slideIndex++;
-                showSlide(slideIndex);
-                startTimer();
-            });
+            // Ініціалізація лічильника при завантаженні сторінки
+            updateCartCounter();
         });
     </script>
 </body>
