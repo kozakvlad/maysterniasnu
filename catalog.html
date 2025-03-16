@@ -20,6 +20,60 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        /* Стилі для модального вікна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: modalopen 0.3s;
+        }
+        
+        @keyframes modalopen {
+            from {transform: scale(0.8); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold; 
+            cursor: pointer; 
+            z-index: 1001;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="bg-background font-['Montserrat'] text-black m-0 min-h-screen flex flex-col transition-all duration-300">
@@ -42,24 +96,55 @@
         </div>
     </header>
 
+    <!-- Модальне вікно для детальної інформації про товар -->
+    <div id="productModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content md:flex">
+            <div class="md:w-1/2">
+                <img id="modalImage" src="" alt="Фото товару" class="w-full h-full object-cover">
+            </div>
+            <div class="md:w-1/2 p-6">
+                <h3 id="modalTitle" class="text-2xl font-bold mb-4 text-primary">Покривало-капа</h3>
+                <div class="mb-4">
+                    <p class="text-xl font-semibold text-primary mb-2">Опис:</p>
+                    <div id="modalDescription" class="space-y-2 text-gray-700">
+                        <!-- Опис буде додано динамічно через JavaScript -->
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-6">
+                    <span id="modalPrice" class="text-2xl font-bold text-primary"></span>
+                    <button id="modalAddToCart" 
+                            data-id="" 
+                            data-name="Покривало-капа" 
+                            data-price="" 
+                            data-image="" 
+                            onclick="addToCartDirect(event)" 
+                            class="bg-primary hover:bg-secondary text-white py-2 px-6 rounded-full transition-colors duration-300">
+                        Додати в кошик
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <main class="flex-grow container mx-auto p-6">
         <h2 class="text-3xl font-bold mb-8 text-primary text-center">Каталог товарів</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Перший ряд -->
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo1.jpg" alt="Натуральна бавовна" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '450', 'images/photo1.jpg', '1')">
+                    <img src="images/photo1.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Натуральна бавовна</h3>
-                    <p class="text-gray-600 mb-3">Комплект постільної білизни з натуральної бавовни.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 150х200 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">500 грн</span>
+                        <span class="text-primary font-bold text-xl">450 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="1" 
-                                data-name="Натуральна бавовна" 
-                                data-price="500" 
+                                data-name="Покривало-капа" 
+                                data-price="450" 
                                 data-image="images/photo1.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -69,18 +154,18 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo2.jpg" alt="Шовк для постелі" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '450', 'images/photo2.jpg', '2')">
+                    <img src="images/photo2.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Шовк для постелі</h3>
-                    <p class="text-gray-600 mb-3">Елегантний комплект постільної білизни з шовку.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 150х200 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">800 грн</span>
+                        <span class="text-primary font-bold text-xl">450 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="2" 
-                                data-name="Шовк для постелі" 
-                                data-price="800" 
+                                data-name="Покривало-капа" 
+                                data-price="450" 
                                 data-image="images/photo2.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -90,18 +175,18 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo3.jpg" alt="Льон для кухні" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo3.jpg', '3')">
+                    <img src="images/photo3.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Льон для кухні</h3>
-                    <p class="text-gray-600 mb-3">Набір кухонних рушників з натурального льону.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">350 грн</span>
+                        <span class="text-primary font-bold text-xl">550 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="3" 
-                                data-name="Льон для кухні" 
-                                data-price="350" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
                                 data-image="images/photo3.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -112,18 +197,18 @@
 
             <!-- Другий ряд -->
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo4.jpg" alt="Натуральна бавовна" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo4.jpg', '4')">
+                    <img src="images/photo4.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Натуральна бавовна</h3>
-                    <p class="text-gray-600 mb-3">Комплект постільної білизни з натуральної бавовни.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">500 грн</span>
+                        <span class="text-primary font-bold text-xl">550 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="4" 
-                                data-name="Натуральна бавовна" 
-                                data-price="500" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
                                 data-image="images/photo4.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -132,23 +217,19 @@
                 </div>
             </div>
 
-            <!-- Продовжуйте для інших товарів... -->
-            <!-- Я скорочу код для економії місця, але принцип такий самий для всіх товарів -->
-            
-            <!-- Останні товари для прикладу -->
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo5.jpg" alt="Шовк для постелі" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo5.jpg', '5')">
+                    <img src="images/photo5.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Шовк для постелі</h3>
-                    <p class="text-gray-600 mb-3">Елегантний комплект постільної білизни з шовку.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">800 грн</span>
+                        <span class="text-primary font-bold text-xl">550 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="5" 
-                                data-name="Шовк для постелі" 
-                                data-price="800" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
                                 data-image="images/photo5.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -158,18 +239,18 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                <div class="h-56 overflow-hidden">
-                    <img src="images/photo6.jpg" alt="Льон для кухні" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo6.jpg', '6')">
+                    <img src="images/photo6.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                 </div>
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2 text-primary">Льон для кухні</h3>
-                    <p class="text-gray-600 mb-3">Набір кухонних рушників з натурального льону.</p>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold text-xl">350 грн</span>
+                        <span class="text-primary font-bold text-xl">550 грн</span>
                         <button onclick="addToCartDirect(event)" 
                                 data-id="6" 
-                                data-name="Льон для кухні" 
-                                data-price="350" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
                                 data-image="images/photo6.jpg" 
                                 class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
                             <span>Додати в кошик</span>
@@ -177,9 +258,241 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Третій ряд (нові товари) -->
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '450', 'images/photo7.jpg', '7')">
+                    <img src="images/photo7.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 150х200 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">450 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="7" 
+                                data-name="Покривало-капа" 
+                                data-price="450" 
+                                data-image="images/photo7.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo8.jpg', '8')">
+                    <img src="images/photo8.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="8" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo8.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo9.jpg', '9')">
+                    <img src="images/photo9.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="9" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo9.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Четвертий ряд (нові товари) -->
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo10.jpg', '10')">
+                    <img src="images/photo10.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="10" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo10.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo11.jpg', '11')">
+                    <img src="images/photo11.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="11" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo11.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '450', 'images/photo12.jpg', '12')">
+                    <img src="images/photo12.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 150х200 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">450 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="12" 
+                                data-name="Покривало-капа" 
+                                data-price="450" 
+                                data-image="images/photo12.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- П'ятий ряд (нові товари) -->
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo13.jpg', '13')">
+                    <img src="images/photo13.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="13" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo13.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo14.jpg', '14')">
+                    <img src="images/photo14.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="14" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo14.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo15.jpg', '15')">
+                    <img src="images/photo15.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="15" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo15.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             
-            <!-- Тут мають бути інші товари з такою ж структурою -->
+            <!-- Шостий ряд (нові товари) -->
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo16.jpg', '16')">
+                    <img src="images/photo16.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="16" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo16.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <div class="h-56 overflow-hidden cursor-pointer" onclick="openProductModal('Покривало-капа', '550', 'images/photo17.jpg', '17')">
+                    <img src="images/photo17.jpg" alt="Покривало-капа" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold mb-2 text-primary">Покривало-капа</h3>
+                    <p class="text-gray-600 mb-3">Розмір: 220х240 см</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold text-xl">550 грн</span>
+                        <button onclick="addToCartDirect(event)" 
+                                data-id="17" 
+                                data-name="Покривало-капа" 
+                                data-price="550" 
+                                data-image="images/photo17.jpg" 
+                                class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center">
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -197,17 +510,23 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-3">Слідкуйте за нами</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
-                        <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
-                        <a href="#" class="text-white hover:text-background transition-colors">Telegram</a>
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
+                            <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
+                            <a href="https://t.me/vykusia" class="text-white hover:text-background transition-colors">Telegram</a>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-background transition-colors">Viber</a>
+                            <a href="#" class="text-white hover:text-background transition-colors">TikTok</a>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="mt-8 pt-6 border-t border-white/30 text-center">
-                <p>&copy; 2023 Майстерня Сну. Всі права захищені.</p>
-            </div>
-        </div>
+                <p>&copy; 2025 Майстерня Сну. Всі права захищені.</p>
+    </div>
+    </div>
     </footer>
 
     <script>
@@ -223,6 +542,9 @@
             
             // Оновлення лічильника кошика
             updateCounter();
+            
+            // Налаштування модального вікна
+            setupModal();
         });
 
         // Функція для додавання товару в кошик
@@ -295,6 +617,81 @@
             } catch (e) {
                 console.error('Помилка при оновленні лічильника:', e);
             }
+        }
+        
+        // Функції для роботи з модальним вікном
+        function setupModal() {
+            const modal = document.getElementById('productModal');
+            const closeBtn = document.querySelector('.modal-close');
+            
+            // Закриття модального вікна при кліку на хрестик
+            closeBtn.addEventListener('click', closeProductModal);
+            
+            // Закриття модального вікна при кліку поза ним
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeProductModal();
+                }
+            });
+            
+            // Закриття модального вікна при натисканні Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeProductModal();
+                }
+            });
+        }
+        
+        // Відкриття модального вікна з інформацією про товар
+        function openProductModal(name, price, image, id) {
+            const modal = document.getElementById('productModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalImage = document.getElementById('modalImage');
+            const modalPrice = document.getElementById('modalPrice');
+            const modalAddToCart = document.getElementById('modalAddToCart');
+            const modalDescription = document.getElementById('modalDescription');
+            
+            // Заповнюємо дані товару
+            modalTitle.textContent = name;
+            modalImage.src = image;
+            modalImage.alt = name;
+            modalPrice.textContent = `${price} грн`;
+            
+            // Оновлюємо опис в залежності від зображення
+            if (image.includes('photo1') || image.includes('photo2') || image.includes('photo7') || image.includes('photo12')) {
+                modalDescription.innerHTML = `
+                    <p>Покривало-капа 150х200 см.</p>
+                    <p>Щільність 300г/м2.</p>
+                    <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
+                    <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
+                    <p>Машинне прання, 30°</p>
+                `;
+            } else {
+                modalDescription.innerHTML = `
+                    <p>Покривало-капа 220х240 см.</p>
+                    <p>Щільність 300г/м2.</p>
+                    <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
+                    <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
+                    <p>Машинне прання, 30°</p>
+                `;
+            }
+            
+            // Оновлюємо атрибути кнопки "Додати в кошик"
+            modalAddToCart.setAttribute('data-id', id);
+            modalAddToCart.setAttribute('data-name', name);
+            modalAddToCart.setAttribute('data-price', price);
+            modalAddToCart.setAttribute('data-image', image);
+            
+            // Показуємо модальне вікно
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Забороняємо прокрутку сторінки
+        }
+        
+        // Закриття модального вікна
+        function closeProductModal() {
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = ''; // Дозволяємо прокрутку сторінки
         }
     </script>
 </body>
