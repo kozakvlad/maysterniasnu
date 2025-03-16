@@ -101,32 +101,26 @@
             
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold mb-4 text-primary">Напишіть нам</h3>
-                <form class="space-y-4">
+                <form id="contact-form" class="space-y-4">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Ваше ім'я</label>
-                        <input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
                     <div>
                         <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Тема</label>
-                        <input type="text" id="subject" name="subject" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <input type="text" id="subject" name="subject" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
                     <div>
                         <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Повідомлення</label>
-                        <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                        <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
                     </div>
+                    <div id="form-status" class="hidden"></div>
                     <button type="submit" class="bg-primary hover:bg-secondary text-white font-medium py-2 px-6 rounded-md transition-colors duration-300">Надіслати</button>
                 </form>
-            </div>
-        </div>
-        
-        <div class="mt-10 bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-xl font-semibold mb-4 text-primary">Як нас знайти</h3>
-            <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2540.4642460939866!2d30.52197931573169!3d50.45046977947591!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40d4ce50f8b6e3c3%3A0xb528dc4d6dadc4f8!2z0JrQuNC10LIsIDAyMDAw!5e0!3m2!1suk!2sua!4v1620144326585!5m2!1suk!2sua" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
             </div>
         </div>
     </main>
@@ -145,10 +139,16 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-3">Слідкуйте за нами</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
-                        <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
-                        <a href="#" class="text-white hover:text-background transition-colors">Telegram</a>
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
+                            <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
+                            <a href="https://t.me/vykusia" class="text-white hover:text-background transition-colors">Telegram</a>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-background transition-colors">Viber</a>
+                            <a href="#" class="text-white hover:text-background transition-colors">TikTok</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,6 +174,63 @@
             
             // Ініціалізація лічильника при завантаженні сторінки
             updateCartCounter();
+
+            // Обробка відправки форми зворотного зв'язку
+            const contactForm = document.getElementById('contact-form');
+            const formStatus = document.getElementById('form-status');
+
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    // Показуємо статус завантаження
+                    formStatus.textContent = 'Відправка повідомлення...';
+                    formStatus.className = 'py-2 px-4 bg-blue-100 text-blue-700 rounded-md';
+                    formStatus.classList.remove('hidden');
+                    
+                    // Збираємо дані форми
+                    const formData = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        subject: document.getElementById('subject').value,
+                        message: document.getElementById('message').value
+                    };
+                    
+                    // Відправляємо дані на сервер
+                    fetch('/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Помилка при відправці');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Успішна відправка
+                        formStatus.textContent = data;
+                        formStatus.className = 'py-2 px-4 bg-green-100 text-green-700 rounded-md';
+                        
+                        // Очищаємо форму
+                        contactForm.reset();
+                        
+                        // Ховаємо повідомлення через 5 секунд
+                        setTimeout(() => {
+                            formStatus.classList.add('hidden');
+                        }, 5000);
+                    })
+                    .catch(error => {
+                        // Помилка відправки
+                        formStatus.textContent = 'Виникла помилка при відправці повідомлення. Спробуйте пізніше.';
+                        formStatus.className = 'py-2 px-4 bg-red-100 text-red-700 rounded-md';
+                        console.error('Помилка:', error);
+                    });
+                });
+            }
         });
     </script>
 </body>
