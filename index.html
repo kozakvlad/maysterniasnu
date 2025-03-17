@@ -62,6 +62,11 @@
                             <span id="cart-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                         </a>
                     </li>
+                    <li id="auth-link">
+                        <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
+                            Увійти
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -76,6 +81,11 @@
                     <a href="kart.html" class="relative block text-white hover:text-background transition-colors text-lg">
                         Кошик
                         <span id="mobile-cart-counter" class="inline-flex ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center">0</span>
+                    </a>
+                </li>
+                <li id="auth-link-mobile">
+                    <a href="auth.html" class="block text-white hover:text-background transition-colors font-medium text-lg">
+                        Увійти
                     </a>
                 </li>
             </ul>
@@ -225,6 +235,47 @@
             
             // Ініціалізація лічильника при завантаженні сторінки
             updateCartCounter();
+            
+            // Перевірка статусу авторизації
+            checkAuthStatus();
+            
+            // Функція для перевірки статусу авторизації
+            function checkAuthStatus() {
+                const userData = localStorage.getItem('user_data');
+                if (userData) {
+                    // Користувач авторизований
+                    updateUIAfterLogin(JSON.parse(userData));
+                }
+            }
+            
+            // Функція для оновлення інтерфейсу після входу
+            function updateUIAfterLogin(userData) {
+                // Оновлюємо посилання на авторизацію
+                const authLink = document.getElementById('auth-link');
+                const authLinkMobile = document.getElementById('auth-link-mobile');
+                
+                if (authLink) {
+                    authLink.innerHTML = `
+                        <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
+                            <span class="inline-flex items-center">
+                                <img src="${userData.picture}" alt="аватар" class="w-6 h-6 rounded-full mr-2">
+                                ${userData.name.split(' ')[0]}
+                            </span>
+                        </a>
+                    `;
+                }
+                
+                if (authLinkMobile) {
+                    authLinkMobile.innerHTML = `
+                        <a href="auth.html" class="block text-white hover:text-background transition-colors font-medium text-lg">
+                            <span class="inline-flex items-center">
+                                <img src="${userData.picture}" alt="аватар" class="w-6 h-6 rounded-full mr-2">
+                                ${userData.name.split(' ')[0]}
+                            </span>
+                        </a>
+                    `;
+                }
+            }
         });
     </script>
 </body>
