@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизація - Майстерня Сну</title>
+    <!-- Tailwind CSS через CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B7355',
+                        secondary: '#A0522D',
+                        background: '#F5F0E1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        /* Додаткові стилі для мобільних пристроїв */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 16px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: #444;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .google-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .google-icon {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="bg-background font-['Montserrat'] text-black m-0 min-h-screen flex flex-col transition-all duration-300">
+    <header class="bg-primary text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Майстерня Сну</h1>
+            
+            <!-- Мобільне меню (бургер) -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Десктопне меню -->
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-white hover:text-background transition-colors">Головна</a></li>
+                    <li><a href="catalog.html" class="text-white hover:text-background transition-colors">Каталог</a></li>
+                    <li><a href="contacts.html" class="text-white hover:text-background transition-colors">Контакти</a></li>
+                    <li>
+                        <a href="kart.html" class="relative text-white hover:text-background transition-colors">
+                            Кошик
+                            <span id="cart-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </a>
+                    </li>
+                    <li id="auth-link">
+                        <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
+                            Увійти
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Мобільне меню (випадаюче) -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 container mx-auto">
+            <ul class="flex flex-col space-y-3 bg-primary p-4 rounded-lg">
+                <li><a href="index.html" class="block text-white hover:text-background transition-colors text-lg">Головна</a></li>
+                <li><a href="catalog.html" class="block text-white hover:text-background transition-colors text-lg">Каталог</a></li>
+                <li><a href="contacts.html" class="block text-white hover:text-background transition-colors text-lg">Контакти</a></li>
+                <li>
+                    <a href="kart.html" class="relative block text-white hover:text-background transition-colors text-lg">
+                        Кошик
+                        <span id="mobile-cart-counter" class="inline-flex ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center">0</span>
+                    </a>
+                </li>
+                <li id="auth-link-mobile">
+                    <a href="auth.html" class="block text-white hover:text-background transition-colors font-medium text-lg">
+                        Увійти
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-6">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-primary text-center mb-6">Авторизація</h2>
+            
+            <!-- Блок для неавторизованого користувача -->
+            <div id="login-section">
+                <p class="text-gray-600 mb-6 text-center">Увійдіть за допомогою вашого Google акаунту, щоб отримати доступ до особистого кабінету та зручного управління замовленнями.</p>
+                
+                <!-- Google Sign-In Button -->
+                <div class="flex justify-center">
+                    <div id="g_id_onload"
+                        data-client_id="347855100847-ocbk2q63e313c9m62li42aifj8il4m0u.apps.googleusercontent.com"
+                        data-context="signin"
+                        data-ux_mode="popup"
+                        data-callback="handleCredentialResponse"
+                        data-auto_prompt="false">
+                    </div>
+                    
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="rectangular"
+                        data-theme="outline"
+                        data-text="signin_with"
+                        data-size="large"
+                        data-logo_alignment="left">
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button id="custom-google-btn" class="google-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="google-icon">
+                        Увійти з Google
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Блок для авторизованого користувача -->
+            <div id="profile-section" class="hidden">
+                <div class="text-center mb-6">
+                    <img id="user-avatar" src="" alt="Аватар користувача" class="w-20 h-20 rounded-full mx-auto mb-4">
+                    <h3 id="user-name" class="text-xl font-semibold text-primary"></h3>
+                    <p id="user-email" class="text-gray-600"></p>
+                </div>
+                
+                <div class="space-y-4">
+                    <a href="kart.html" class="block w-full bg-primary hover:bg-secondary text-white font-medium py-2 px-4 rounded-md text-center transition-colors duration-300">Мої замовлення</a>
+                    <button id="logout-btn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors duration-300">Вийти</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-primary text-white p-6 mt-auto">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-3">Майстерня Сну</h3>
+                    <p>Якісний текстиль для вашого дому</p>
+                </div>
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-3">Контакти</h3>
+                    <p>Телефон: +380 50 123 4567</p>
+                    <p>Email: info@maisterniasnu.ua</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Слідкуйте за нами</h3>
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/share/1C3oUKfDRa/?mibextid=wwXIfr" class="text-white hover:text-background transition-colors">Facebook</a>
+                            <a href="https://www.instagram.com/viktoriakozak?igsh=bGczOGZteTV0ajBz&utm_source=qr" class="text-white hover:text-background transition-colors">Instagram</a>
+                            <a href="https://t.me/vykusia" class="text-white hover:text-background transition-colors">Telegram</a>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="viber://chat?number=%2B380678602507" class="text-white hover:text-background transition-colors">Viber</a>
+                            <a href="https://www.tiktok.com/@maysterniasnu?_t=ZM-8ujozvI7fAV&_r=1" class="text-white hover:text-background transition-colors">TikTok</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-white/30 text-center">
+                <p>&copy; 2023 Майстерня Сну. Всі права захищені.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Мобільне меню
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Оновлення лічильника кошика
+            function updateCartCounter() {
+                const cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
+                let totalItems = 0;
+                
+                cartData.forEach(item => {
+                    totalItems += item.quantity;
+                });
+                
+                // Оновлюємо лічильник на десктопі
+                const cartCounter = document.getElementById('cart-counter');
+                if (cartCounter) {
+                    cartCounter.textContent = totalItems;
+                }
+                
+                // Оновлюємо лічильник на мобільній версії
+                const mobileCartCounter = document.getElementById('mobile-cart-counter');
+                if (mobileCartCounter) {
+                    mobileCartCounter.textContent = totalItems;
+                }
+            }
+            
+            // Ініціалізація лічильника при завантаженні сторінки
+            updateCartCounter();
+            
+            // Перевірка статусу авторизації
+            checkAuthStatus();
+            
+            // Google Sign-In callback
+            window.handleCredentialResponse = function(response) {
+                // Декодуємо JWT токен для отримання інформації про користувача
+                const responsePayload = parseJwt(response.credential);
+                
+                console.log("ID: " + responsePayload.sub);
+                console.log('Ім\'я: ' + responsePayload.name);
+                console.log('Зображення: ' + responsePayload.picture);
+                console.log('Email: ' + responsePayload.email);
+                
+                // Зберігаємо інформацію про користувача
+                saveUserData({
+                    id: responsePayload.sub,
+                    name: responsePayload.name,
+                    email: responsePayload.email,
+                    picture: responsePayload.picture
+                });
+                
+                // Оновлюємо інтерфейс
+                updateUIAfterLogin();
+            };
+            
+            // Власна кнопка Google Sign-In
+            const customGoogleBtn = document.getElementById('custom-google-btn');
+            if (customGoogleBtn) {
+                customGoogleBtn.addEventListener('click', function() {
+                    // Викликаємо Google Sign-In API
+                    document.querySelector('.g_id_signin').click();
+                });
+            }
+            
+            // Кнопка виходу
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    // Видаляємо дані користувача
+                    localStorage.removeItem('user_data');
+                    
+                    // Оновлюємо інтерфейс
+                    updateUIAfterLogout();
+                    
+                    // Повідомлення про успішний вихід
+                    alert('Ви успішно вийшли з облікового запису');
+                });
+            }
+            
+            // Функція для перевірки статусу авторизації
+            function checkAuthStatus() {
+                const userData = localStorage.getItem('user_data');
+                if (userData) {
+                    // Користувач авторизований
+                    updateUIAfterLogin();
+                } else {
+                    // Користувач не авторизований
+                    updateUIAfterLogout();
+                }
+            }
+            
+            // Функція для оновлення інтерфейсу після входу
+            function updateUIAfterLogin() {
+                const userData = JSON.parse(localStorage.getItem('user_data'));
+                
+                // Оновлюємо посилання на авторизацію
+                const authLink = document.getElementById('auth-link');
+                const authLinkMobile = document.getElementById('auth-link-mobile');
+                
+                if (authLink) {
+                    authLink.innerHTML = `
+                        <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
+                            <span class="inline-flex items-center">
+                                <img src="${userData.picture}" alt="аватар" class="w-6 h-6 rounded-full mr-2">
+                                ${userData.name.split(' ')[0]}
+                            </span>
+                        </a>
+                    `;
+                }
+                
+                if (authLinkMobile) {
+                    authLinkMobile.innerHTML = `
+                        <a href="auth.html" class="block text-white hover:text-background transition-colors font-medium text-lg">
+                            <span class="inline-flex items-center">
+                                <img src="${userData.picture}" alt="аватар" class="w-6 h-6 rounded-full mr-2">
+                                ${userData.name.split(' ')[0]}
+                            </span>
+                        </a>
+                    `;
+                }
+                
+                // Показуємо профіль і ховаємо форму входу
+                const loginSection = document.getElementById('login-section');
+                const profileSection = document.getElementById('profile-section');
+                
+                if (loginSection && profileSection) {
+                    loginSection.classList.add('hidden');
+                    profileSection.classList.remove('hidden');
+                    
+                    // Заповнюємо дані користувача
+                    document.getElementById('user-avatar').src = userData.picture;
+                    document.getElementById('user-name').textContent = userData.name;
+                    document.getElementById('user-email').textContent = userData.email;
+                }
+            }
+            
+            // Функція для оновлення інтерфейсу після виходу
+            function updateUIAfterLogout() {
+                // Оновлюємо посилання на авторизацію
+                const authLink = document.getElementById('auth-link');
+                const authLinkMobile = document.getElementById('auth-link-mobile');
+                
+                if (authLink) {
+                    authLink.innerHTML = `
+                        <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
+                            Увійти
+                        </a>
+                    `;
+                }
+                
+                if (authLinkMobile) {
+                    authLinkMobile.innerHTML = `
+                        <a href="auth.html" class="block text-white hover:text-background transition-colors font-medium text-lg">
+                            Увійти
+                        </a>
+                    `;
+                }
+                
+                // Показуємо форму входу і ховаємо профіль
+                const loginSection = document.getElementById('login-section');
+                const profileSection = document.getElementById('profile-section');
+                
+                if (loginSection && profileSection) {
+                    loginSection.classList.remove('hidden');
+                    profileSection.classList.add('hidden');
+                }
+            }
+            
+            // Функція для збереження даних користувача
+            function saveUserData(userData) {
+                localStorage.setItem('user_data', JSON.stringify(userData));
+            }
+            
+            // Функція для парсингу JWT токену
+            function parseJwt(token) {
+                var base64Url = token.split('.')[1];
+                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                
+                return JSON.parse(jsonPayload);
+            }
+        });
+    </script>
+</body>
+</html> 
