@@ -207,13 +207,25 @@
                     let data = null;
                     
                     try {
-                        // Спочатку перевіряємо localStorage, потім sessionStorage
+                        // Перевіряємо всі можливі ключі для сумісності
+                        // Стандартний ключ
                         if (window.localStorage) {
                             data = localStorage.getItem(key);
                         }
                         
+                        // Перевіряємо в sessionStorage
                         if (!data && window.sessionStorage) {
                             data = sessionStorage.getItem(key);
+                        }
+                        
+                        // Перевіряємо з префіксом (для сумісності зі старою версією)
+                        if (!data && window.localStorage) {
+                            data = localStorage.getItem('maisterniasnu_' + key);
+                        }
+                        
+                        // Перевіряємо в sessionStorage з префіксом
+                        if (!data && window.sessionStorage) {
+                            data = sessionStorage.getItem('maisterniasnu_' + key);
                         }
                         
                         return data ? JSON.parse(data) : defaultValue;
@@ -228,10 +240,12 @@
                     try {
                         if (window.localStorage) {
                             localStorage.removeItem(key);
+                            localStorage.removeItem('maisterniasnu_' + key); // Для сумісності
                         }
                         
                         if (window.sessionStorage) {
                             sessionStorage.removeItem(key);
+                            sessionStorage.removeItem('maisterniasnu_' + key); // Для сумісності
                         }
                         
                         return true;
@@ -241,6 +255,103 @@
                     }
                 }
             };
+            
+            // Міграція даних зі старих ключів до нових (тільки один раз)
+            function migrateCartData() {
+                console.log('Перевірка та міграція даних кошика...');
+                
+                try {
+                    // Всі можливі ключі для кошика
+                    const possibleCartKeys = [
+                        'cart_data',
+                        'maisterniasnu_cart_data',
+                        'cartItems'
+                    ];
+                    
+                    let cartData = [];
+                    
+                    // Функція для об'єднання кошиків
+                    function mergeCartItems(existingCart, newItems) {
+                        if (!Array.isArray(newItems) || newItems.length === 0) return existingCart;
+                        
+                        newItems.forEach(newItem => {
+                            // Перевіряємо чи товар унікальний
+                            const existingItemIndex = existingCart.findIndex(item => 
+                                item.name === newItem.name && item.price === newItem.price
+                            );
+                            
+                            if (existingItemIndex >= 0) {
+                                // Об'єднуємо кількість товарів
+                                existingCart[existingItemIndex].quantity += newItem.quantity || 1;
+                            } else {
+                                // Додаємо новий товар
+                                existingCart.push(newItem);
+                            }
+                        });
+                        
+                        return existingCart;
+                    }
+                    
+                    // Збираємо дані з усіх можливих джерел
+                    for (const key of possibleCartKeys) {
+                        let items = null;
+                        
+                        if (window.localStorage) {
+                            const localData = localStorage.getItem(key);
+                            if (localData) {
+                                try {
+                                    items = JSON.parse(localData);
+                                    console.log(`Знайдено дані в localStorage з ключем ${key}:`, items);
+                                    cartData = mergeCartItems(cartData, items);
+                                } catch (e) {
+                                    console.error(`Помилка розбору даних з localStorage [${key}]:`, e);
+                                }
+                            }
+                        }
+                        
+                        if (window.sessionStorage) {
+                            const sessionData = sessionStorage.getItem(key);
+                            if (sessionData) {
+                                try {
+                                    items = JSON.parse(sessionData);
+                                    console.log(`Знайдено дані в sessionStorage з ключем ${key}:`, items);
+                                    cartData = mergeCartItems(cartData, items);
+                                } catch (e) {
+                                    console.error(`Помилка розбору даних з sessionStorage [${key}]:`, e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Зберігаємо об'єднані дані
+                    if (cartData.length > 0) {
+                        console.log('Об\'єднані дані кошика:', cartData);
+                        Storage.set('cart_data', cartData);
+                        
+                        // Очищаємо старі дані
+                        if (window.localStorage) {
+                            localStorage.removeItem('maisterniasnu_cart_data');
+                            localStorage.removeItem('cartItems');
+                        }
+                        if (window.sessionStorage) {
+                            sessionStorage.removeItem('maisterniasnu_cart_data');
+                            sessionStorage.removeItem('cartItems');
+                        }
+                    }
+                    
+                    return cartData;
+                } catch (e) {
+                    console.error('Помилка міграції даних кошика:', e);
+                    return [];
+                }
+            }
+            
+            // Отримуємо дані кошика
+            function getCart() {
+                const cart = Storage.get('cart_data', []);
+                console.log('Поточні дані кошика:', cart);
+                return cart;
+            }
             
             // Оновлення лічильника кошика
             function updateCartCounter() {
@@ -262,11 +373,6 @@
                 if (mobileCartCounter) {
                     mobileCartCounter.textContent = totalItems;
                 }
-            }
-            
-            // Отримуємо дані кошика
-            function getCart() {
-                return Storage.get('cart_data', []);
             }
             
             // Відображаємо товари в кошику
@@ -469,23 +575,27 @@
                     return;
                 }
                 
-                // Перевіряємо всі товари на правильність полів
+                // Перевіряємо всі товари на правильність полів, але з менш строгими умовами
                 const sanitizedCart = cart.filter(item => {
-                    return item && 
-                           typeof item === 'object' && 
-                           item.name && 
-                           typeof item.price === 'number' && 
-                           item.price > 0 && 
-                           typeof item.quantity === 'number' && 
-                           item.quantity > 0;
+                    return item && typeof item === 'object';
+                }).map(item => {
+                    // Нормалізуємо дані товару
+                    return {
+                        name: item.name || 'Товар без назви',
+                        price: typeof item.price === 'number' && item.price > 0 ? item.price : 0,
+                        quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
+                        image: item.image || 'https://via.placeholder.com/150?text=Товар'
+                    };
                 });
                 
                 if (sanitizedCart.length !== cart.length) {
+                    console.log('Відновлені дані кошика:', sanitizedCart);
                     Storage.set('cart_data', sanitizedCart);
                 }
             }
             
-            // Перевірка та виправлення даних
+            // Міграція і перевірка даних перед відображенням
+            migrateCartData();
             sanitizeCartData();
             
             // Ініціалізація сторінки
