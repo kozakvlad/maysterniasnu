@@ -18,6 +18,14 @@
                 }
             }
         }
+        
+        // Перевірка URL для перенаправлення на адмін-панель
+        (function() {
+            const currentPath = window.location.pathname;
+            if (currentPath.endsWith('/admin') || currentPath.includes('/admin/')) {
+                window.location.href = 'admin.html';
+            }
+        })();
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
@@ -237,7 +245,7 @@
                 let sum = 0;
                 
                 // Додаємо кожен товар в контейнер
-                cart.forEach((item, index) => {
+        cart.forEach((item, index) => {
                     const itemTotal = item.price * item.quantity;
                     sum += itemTotal;
                     
@@ -318,14 +326,14 @@
                 }
                 
                 sessionStorage.setItem('cart_data', JSON.stringify(cart));
-                renderCart();
+    renderCart();
                 updateCartCounter();
             }
             
             // Очищення кошика
             function clearCart() {
                 sessionStorage.setItem('cart_data', '[]');
-                renderCart();
+    renderCart();
                 updateCartCounter();
             }
             
