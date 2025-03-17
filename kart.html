@@ -178,51 +178,73 @@
                 });
             }
             
-            // Функція для перевірки, чи сайт запущено на GitHub Pages
-            function isGitHubPages() {
-                return window.location.hostname.includes('github.io');
-            }
-            
-            // Функція для отримання даних з локального сховища з урахуванням GitHub Pages
-            function getLocalData(key, defaultValue) {
-                try {
-                    // Для GitHub Pages додаємо префікс, щоб уникнути проблем з доменом
-                    const storageKey = isGitHubPages() ? 'maisterniasnu_' + key : key;
-                    
-                    // Спробуємо отримати дані з localStorage замість sessionStorage для GitHub Pages
-                    let data;
-                    if (isGitHubPages()) {
-                        data = localStorage.getItem(storageKey);
-                    } else {
-                        data = sessionStorage.getItem(storageKey);
+            // Універсальне збереження даних з підтримкою різних сховищ
+            const Storage = {
+                // Зберігає дані у всіх доступних сховищах для надійності
+                set: function(key, value) {
+                    try {
+                        const data = JSON.stringify(value);
+                        
+                        // Спробуємо localStorage (зберігається між сесіями)
+                        if (window.localStorage) {
+                            localStorage.setItem(key, data);
+                        }
+                        
+                        // Також зберігаємо в sessionStorage (на випадок, якщо з localStorage проблеми)
+                        if (window.sessionStorage) {
+                            sessionStorage.setItem(key, data);
+                        }
+                        
+                        return true;
+                    } catch (e) {
+                        console.error('Помилка збереження даних:', e);
+                        return false;
                     }
+                },
+                
+                // Отримує дані з найбільш підходящого сховища
+                get: function(key, defaultValue = null) {
+                    let data = null;
                     
-                    return data ? JSON.parse(data) : defaultValue;
-                } catch (e) {
-                    console.error(`Помилка при отриманні даних для ${key}:`, e);
-                    return defaultValue;
-                }
-            }
-            
-            // Функція для збереження даних у локальне сховище з урахуванням GitHub Pages
-            function setLocalData(key, value) {
-                try {
-                    const storageKey = isGitHubPages() ? 'maisterniasnu_' + key : key;
-                    const data = JSON.stringify(value);
-                    
-                    if (isGitHubPages()) {
-                        localStorage.setItem(storageKey, data);
-                    } else {
-                        sessionStorage.setItem(storageKey, data);
+                    try {
+                        // Спочатку перевіряємо localStorage, потім sessionStorage
+                        if (window.localStorage) {
+                            data = localStorage.getItem(key);
+                        }
+                        
+                        if (!data && window.sessionStorage) {
+                            data = sessionStorage.getItem(key);
+                        }
+                        
+                        return data ? JSON.parse(data) : defaultValue;
+                    } catch (e) {
+                        console.error('Помилка отримання даних:', e);
+                        return defaultValue;
                     }
-                } catch (e) {
-                    console.error(`Помилка при збереженні даних для ${key}:`, e);
+                },
+                
+                // Видаляє дані з усіх сховищ
+                remove: function(key) {
+                    try {
+                        if (window.localStorage) {
+                            localStorage.removeItem(key);
+                        }
+                        
+                        if (window.sessionStorage) {
+                            sessionStorage.removeItem(key);
+                        }
+                        
+                        return true;
+                    } catch (e) {
+                        console.error('Помилка видалення даних:', e);
+                        return false;
+                    }
                 }
-            }
+            };
             
             // Оновлення лічильника кошика
             function updateCartCounter() {
-                const cartData = getLocalData('cart_data', []);
+                const cartData = Storage.get('cart_data', []);
                 let totalItems = 0;
                 
                 cartData.forEach(item => {
@@ -244,7 +266,7 @@
             
             // Отримуємо дані кошика
             function getCart() {
-                return getLocalData('cart_data', []);
+                return Storage.get('cart_data', []);
             }
             
             // Відображаємо товари в кошику
@@ -254,13 +276,18 @@
                 const cartTotal = document.getElementById('cart-total');
                 const totalPrice = document.getElementById('total-price');
                 
+                if (!cartItems || !cartEmpty || !cartTotal || !totalPrice) {
+                    console.error('Не знайдено необхідні елементи для рендерингу кошика');
+                    return;
+                }
+                
                 const cart = getCart();
                 console.log('Дані кошика:', cart);
                 
                 // Очищаємо контейнер товарів
                 cartItems.innerHTML = '';
                 
-                if (cart.length === 0) {
+                if (!Array.isArray(cart) || cart.length === 0) {
                     // Показуємо повідомлення про порожній кошик
                     cartEmpty.classList.remove('hidden');
                     cartTotal.classList.add('hidden');
@@ -278,28 +305,24 @@
                     const itemTotal = item.price * item.quantity;
                     sum += itemTotal;
                     
-                    // Виправляємо відносні шляхи для зображень на GitHub Pages
-                    let imagePath = item.image;
-                    if (isGitHubPages() && !imagePath.startsWith('http')) {
-                        // Додаємо правильний префікс базового URL для GitHub Pages
-                        imagePath = '/maisterniasnu/' + imagePath.replace(/^\//, '');
-                    }
+                    // Перевіряємо та виправляємо посилання на зображення
+                    let imagePath = item.image || '';
                     
                     const itemElement = document.createElement('div');
                     itemElement.className = 'cart-item py-4 md:py-6 flex flex-col md:flex-row items-start gap-4';
                     
                     itemElement.innerHTML = `
                         <div class="md:w-1/5">
-                            <img src="${imagePath}" alt="${item.name}" class="w-full h-32 object-cover rounded-md" onerror="this.src='https://via.placeholder.com/150?text=Товар'; this.onerror=null;">
+                            <img src="${imagePath}" alt="${item.name || 'Товар'}" class="w-full h-32 object-cover rounded-md" onerror="this.src='https://via.placeholder.com/150?text=Товар'; this.onerror=null;">
                         </div>
                         <div class="md:w-2/5 flex-grow">
-                            <h3 class="text-lg font-semibold text-primary">${item.name}</h3>
-                            <p class="text-gray-600">Ціна: ${item.price} грн</p>
+                            <h3 class="text-lg font-semibold text-primary">${item.name || 'Товар без назви'}</h3>
+                            <p class="text-gray-600">Ціна: ${item.price || 0} грн</p>
                         </div>
                         <div class="cart-item-controls md:w-2/5 flex items-center justify-between w-full md:w-auto">
                             <div class="cart-item-quantity flex items-center space-x-2">
                                 <button class="minus-btn bg-gray-200 hover:bg-gray-300 text-gray-700 w-8 h-8 rounded-full flex items-center justify-center" data-index="${index}">-</button>
-                                <span class="text-lg font-medium">${item.quantity}</span>
+                                <span class="text-lg font-medium">${item.quantity || 1}</span>
                                 <button class="plus-btn bg-gray-200 hover:bg-gray-300 text-gray-700 w-8 h-8 rounded-full flex items-center justify-center" data-index="${index}">+</button>
                             </div>
                             <div class="flex items-center space-x-4">
@@ -323,21 +346,27 @@
                 document.querySelectorAll('.delete-btn').forEach(button => {
                     button.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
-                        removeItem(index);
+                        if (!isNaN(index)) {
+                            removeItem(index);
+                        }
                     });
                 });
                 
                 document.querySelectorAll('.plus-btn').forEach(button => {
                     button.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
-                        updateQuantity(index, 1);
+                        if (!isNaN(index)) {
+                            updateQuantity(index, 1);
+                        }
                     });
                 });
                 
                 document.querySelectorAll('.minus-btn').forEach(button => {
                     button.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
-                        updateQuantity(index, -1);
+                        if (!isNaN(index)) {
+                            updateQuantity(index, -1);
+                        }
                     });
                 });
             }
@@ -345,30 +374,36 @@
             // Видалення товару з кошика
             function removeItem(index) {
                 const cart = getCart();
-                cart.splice(index, 1);
-                setLocalData('cart_data', cart);
-                renderCart();
-                updateCartCounter();
+                if (Array.isArray(cart) && index >= 0 && index < cart.length) {
+                    cart.splice(index, 1);
+                    Storage.set('cart_data', cart);
+                    renderCart();
+                    updateCartCounter();
+                }
             }
             
             // Оновлення кількості товару
             function updateQuantity(index, change) {
                 const cart = getCart();
-                cart[index].quantity += change;
+                if (!Array.isArray(cart) || index < 0 || index >= cart.length) {
+                    return;
+                }
+                
+                cart[index].quantity = (cart[index].quantity || 1) + change;
                 
                 // Якщо кількість стала 0 або менше, видаляємо товар
                 if (cart[index].quantity <= 0) {
                     cart.splice(index, 1);
                 }
                 
-                setLocalData('cart_data', cart);
+                Storage.set('cart_data', cart);
                 renderCart();
                 updateCartCounter();
             }
             
             // Очищення кошика
             function clearCart() {
-                setLocalData('cart_data', []);
+                Storage.set('cart_data', []);
                 renderCart();
                 updateCartCounter();
             }
@@ -376,7 +411,7 @@
             // Оформлення замовлення
             function checkout() {
                 // Перевіряємо, чи авторизований користувач
-                const userData = getLocalData('user_data', null);
+                const userData = Storage.get('user_data', null);
                 if (!userData) {
                     // Якщо користувач не авторизований, перенаправляємо на сторінку авторизації
                     window.location.href = 'auth.html';
@@ -393,7 +428,7 @@
             
             // Функція для перевірки статусу авторизації
             function checkAuthStatus() {
-                const userData = getLocalData('user_data', null);
+                const userData = Storage.get('user_data', null);
                 if (userData) {
                     // Користувач авторизований
                     updateUIAfterLogin(userData);
@@ -402,51 +437,56 @@
             
             // Функція для оновлення інтерфейсу після входу
             function updateUIAfterLogin(userData) {
+                if (!userData) return;
+                
                 // Оновлюємо посилання на авторизацію
                 const authLink = document.getElementById('auth-link');
                 const authLinkTopMobile = document.getElementById('auth-link-top-mobile');
                 
+                // Забезпечуємо значення для зображення аватара
+                const avatarUrl = userData.picture || 'https://via.placeholder.com/150?text=User';
+                
                 if (authLink) {
                     authLink.innerHTML = `
                         <a href="auth.html" class="text-white hover:text-background transition-colors font-medium">
-                            <img src="${userData.picture}" alt="аватар" class="w-7 h-7 rounded-full">
+                            <img src="${avatarUrl}" alt="аватар" class="w-7 h-7 rounded-full" onerror="this.src='https://via.placeholder.com/150?text=User'; this.onerror=null;">
                         </a>
                     `;
                 }
                 
                 if (authLinkTopMobile) {
                     authLinkTopMobile.innerHTML = `
-                        <img src="${userData.picture}" alt="аватар" class="w-7 h-7 rounded-full">
+                        <img src="${avatarUrl}" alt="аватар" class="w-7 h-7 rounded-full" onerror="this.src='https://via.placeholder.com/150?text=User'; this.onerror=null;">
                     `;
                 }
             }
             
-            // Створення демо-товарів для тестування на GitHub Pages
-            function createDemoProducts() {
-                if (isGitHubPages() && getCart().length === 0) {
-                    console.log('Створення демо-товарів для GitHub Pages');
-                    const demoProducts = [
-                        {
-                            id: 1,
-                            name: 'Подушка "Комфорт"',
-                            price: 550,
-                            quantity: 1,
-                            image: 'https://via.placeholder.com/150?text=Подушка'
-                        },
-                        {
-                            id: 2,
-                            name: 'Ковдра "Пухнаста"',
-                            price: 1200,
-                            quantity: 1,
-                            image: 'https://via.placeholder.com/150?text=Ковдра'
-                        }
-                    ];
-                    setLocalData('cart_data', demoProducts);
+            // Захисне відновлення пошкоджених даних
+            function sanitizeCartData() {
+                const cart = getCart();
+                if (!Array.isArray(cart)) {
+                    Storage.set('cart_data', []);
+                    return;
+                }
+                
+                // Перевіряємо всі товари на правильність полів
+                const sanitizedCart = cart.filter(item => {
+                    return item && 
+                           typeof item === 'object' && 
+                           item.name && 
+                           typeof item.price === 'number' && 
+                           item.price > 0 && 
+                           typeof item.quantity === 'number' && 
+                           item.quantity > 0;
+                });
+                
+                if (sanitizedCart.length !== cart.length) {
+                    Storage.set('cart_data', sanitizedCart);
                 }
             }
             
-            // Ініціалізація демо-даних для GitHub Pages
-            createDemoProducts();
+            // Перевірка та виправлення даних
+            sanitizeCartData();
             
             // Ініціалізація сторінки
             renderCart();
@@ -462,6 +502,12 @@
             if (checkoutButton) {
                 checkoutButton.addEventListener('click', checkout);
             }
+            
+            // Обробка помилок
+            window.addEventListener('error', function(e) {
+                console.error('Перехоплена помилка на сторінці кошика:', e.message);
+                // Тут можна додати додаткову логіку для відновлення після помилок
+            });
         });
     </script>
 </body>
