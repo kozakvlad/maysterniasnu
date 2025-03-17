@@ -2,6 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Каталог - Майстерня Сну</title>
     <!-- Tailwind CSS через CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -80,7 +81,18 @@
     <header class="bg-primary text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold">Майстерня Сну</h1>
-            <nav>
+            
+            <!-- Мобільне меню (бургер) -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Десктопне меню -->
+            <nav class="hidden md:block">
                 <ul class="flex space-x-6">
                     <li><a href="index.html" class="text-white hover:text-background transition-colors">Головна</a></li>
                     <li><a href="catalog.html" class="text-white hover:text-background transition-colors font-medium">Каталог</a></li>
@@ -93,6 +105,21 @@
                     </li>
                 </ul>
             </nav>
+        </div>
+        
+        <!-- Мобільне меню (випадаюче) -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 container mx-auto">
+            <ul class="flex flex-col space-y-3 bg-primary p-4 rounded-lg">
+                <li><a href="index.html" class="block text-white hover:text-background transition-colors text-lg">Головна</a></li>
+                <li><a href="catalog.html" class="block text-white hover:text-background transition-colors font-medium text-lg">Каталог</a></li>
+                <li><a href="contacts.html" class="block text-white hover:text-background transition-colors text-lg">Контакти</a></li>
+                <li>
+                    <a href="kart.html" class="relative block text-white hover:text-background transition-colors text-lg">
+                        Кошик
+                        <span id="mobile-cart-counter" class="inline-flex ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center">0</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </header>
 
@@ -512,13 +539,13 @@
                     <h3 class="text-lg font-semibold mb-3">Слідкуйте за нами</h3>
                     <div class="flex flex-col space-y-2">
                         <div class="flex space-x-4">
-                            <a href="#" class="text-white hover:text-background transition-colors">Facebook</a>
-                            <a href="#" class="text-white hover:text-background transition-colors">Instagram</a>
+                            <a href="https://www.facebook.com/share/1C3oUKfDRa/?mibextid=wwXIfr" class="text-white hover:text-background transition-colors">Facebook</a>
+                            <a href="https://www.instagram.com/viktoriakozak?igsh=bGczOGZteTV0ajBz&utm_source=qr" class="text-white hover:text-background transition-colors">Instagram</a>
                             <a href="https://t.me/vykusia" class="text-white hover:text-background transition-colors">Telegram</a>
                         </div>
                         <div class="flex space-x-4">
-                            <a href="#" class="text-white hover:text-background transition-colors">Viber</a>
-                            <a href="#" class="text-white hover:text-background transition-colors">TikTok</a>
+                            <a href="viber://chat?number=%2B380678602507" class="text-white hover:text-background transition-colors">Viber</a>
+                            <a href="https://www.tiktok.com/@maysterniasnu?_t=ZM-8ujozvI7fAV&_r=1" class="text-white hover:text-background transition-colors">TikTok</a>
                         </div>
                     </div>
                 </div>
@@ -530,81 +557,19 @@
     </footer>
 
     <script>
-        // Перевірка функціональності sessionStorage
         document.addEventListener('DOMContentLoaded', function() {
-            try {
-                sessionStorage.setItem('test', 'test');
-                sessionStorage.removeItem('test');
-                console.log('SessionStorage працює коректно');
-            } catch (e) {
-                console.error('SessionStorage не працює:', e);
-            }
+            // Мобільне меню
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
             
-            // Оновлення лічильника кошика
-            updateCounter();
-            
-            // Налаштування модального вікна
-            setupModal();
-        });
-
-        // Функція для додавання товару в кошик
-        function addToCartDirect(event) {
-            event.preventDefault();
-            
-            const button = event.currentTarget;
-            const id = button.getAttribute('data-id');
-            const name = button.getAttribute('data-name');
-            const price = button.getAttribute('data-price');
-            const image = button.getAttribute('data-image');
-            
-            console.log(`Додаємо товар: ${name}, ціна: ${price}, зображення: ${image}`);
-            
-            // Отримуємо поточний вміст кошика
-            let cartData = [];
-            try {
-                cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
-            } catch (e) {
-                console.error('Помилка при отриманні даних кошика:', e);
-                cartData = [];
-            }
-            
-            // Перевіряємо, чи є вже такий товар у кошику
-            let found = false;
-            for (let i = 0; i < cartData.length; i++) {
-                if (cartData[i].id === id) {
-                    cartData[i].quantity += 1;
-                    found = true;
-                    break;
-                }
-            }
-            
-            // Якщо товару немає в кошику, додаємо його
-            if (!found) {
-                cartData.push({
-                    id: id,
-                    name: name,
-                    price: price,
-                    image: image,
-                    quantity: 1
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
                 });
             }
             
-            // Зберігаємо оновлений кошик
-            const cartJson = JSON.stringify(cartData);
-            sessionStorage.setItem('cart_data', cartJson);
-            
-            console.log('Кошик оновлено:', cartJson);
-            
-            // Оновлюємо лічильник товарів
-            updateCounter();
-            
-            // Показуємо повідомлення про успішне додавання
-            alert(`Товар "${name}" додано до кошика!`);
-        }
-        
-        // Функція для оновлення лічильника товарів
-        function updateCounter() {
-            try {
+            // Оновлення лічильника кошика
+            function updateCartCounter() {
                 const cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
                 let totalItems = 0;
                 
@@ -612,13 +577,81 @@
                     totalItems += item.quantity;
                 });
                 
-                document.getElementById('cart-counter').textContent = totalItems;
-                console.log(`Оновлено лічильник кошика: ${totalItems} товарів`);
-            } catch (e) {
-                console.error('Помилка при оновленні лічильника:', e);
+                // Оновлюємо лічильник на десктопі
+                const cartCounter = document.getElementById('cart-counter');
+                if (cartCounter) {
+                    cartCounter.textContent = totalItems;
+                }
+                
+                // Оновлюємо лічильник на мобільній версії
+                const mobileCartCounter = document.getElementById('mobile-cart-counter');
+                if (mobileCartCounter) {
+                    mobileCartCounter.textContent = totalItems;
+                }
             }
-        }
-        
+            
+            // Ініціалізація лічильника при завантаженні сторінки
+            updateCartCounter();
+            
+            // Оновлюємо лічильник після додавання товару в кошик
+            window.addToCartDirect = function(button) {
+                event.preventDefault();
+                
+                const button = event.currentTarget;
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const price = button.getAttribute('data-price');
+                const image = button.getAttribute('data-image');
+                
+                console.log(`Додаємо товар: ${name}, ціна: ${price}, зображення: ${image}`);
+                
+                // Отримуємо поточний вміст кошика
+                let cartData = [];
+                try {
+                    cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
+                } catch (e) {
+                    console.error('Помилка при отриманні даних кошика:', e);
+                    cartData = [];
+                }
+                
+                // Перевіряємо, чи є вже такий товар у кошику
+                let found = false;
+                for (let i = 0; i < cartData.length; i++) {
+                    if (cartData[i].id === id) {
+                        cartData[i].quantity += 1;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Якщо товару немає в кошику, додаємо його
+                if (!found) {
+                    cartData.push({
+                        id: id,
+                        name: name,
+                        price: price,
+                        image: image,
+                        quantity: 1
+                    });
+                }
+                
+                // Зберігаємо оновлений кошик
+                const cartJson = JSON.stringify(cartData);
+                sessionStorage.setItem('cart_data', cartJson);
+                
+                console.log('Кошик оновлено:', cartJson);
+                
+                // Оновлюємо лічильник товарів
+                updateCartCounter();
+                
+                // Показуємо повідомлення про успішне додавання
+                alert(`Товар "${name}" додано до кошика!`);
+            };
+            
+            // Налаштування модального вікна
+            setupModal();
+        });
+
         // Функції для роботи з модальним вікном
         function setupModal() {
             const modal = document.getElementById('productModal');
