@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Майстерня Сну</title>
     <!-- Tailwind CSS через CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +21,19 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        /* Додаткові стилі для мобільних пристроїв */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 16px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-background font-['Montserrat'] text-black m-0 min-h-screen flex flex-col transition-all duration-300">
