@@ -185,14 +185,9 @@
                     try {
                         const data = JSON.stringify(value);
                         
-                        // Спробуємо localStorage (зберігається між сесіями)
+                        // Використовуємо тільки localStorage для надійного зберігання між сесіями
                         if (window.localStorage) {
                             localStorage.setItem(key, data);
-                        }
-                        
-                        // Також зберігаємо в sessionStorage (на випадок, якщо з localStorage проблеми)
-                        if (window.sessionStorage) {
-                            sessionStorage.setItem(key, data);
                         }
                         
                         return true;
@@ -202,30 +197,13 @@
                     }
                 },
                 
-                // Отримує дані з найбільш підходящого сховища
+                // Отримує дані зі сховища
                 get: function(key, defaultValue = null) {
                     let data = null;
                     
                     try {
-                        // Перевіряємо всі можливі ключі для сумісності
-                        // Стандартний ключ
                         if (window.localStorage) {
                             data = localStorage.getItem(key);
-                        }
-                        
-                        // Перевіряємо в sessionStorage
-                        if (!data && window.sessionStorage) {
-                            data = sessionStorage.getItem(key);
-                        }
-                        
-                        // Перевіряємо з префіксом (для сумісності зі старою версією)
-                        if (!data && window.localStorage) {
-                            data = localStorage.getItem('maisterniasnu_' + key);
-                        }
-                        
-                        // Перевіряємо в sessionStorage з префіксом
-                        if (!data && window.sessionStorage) {
-                            data = sessionStorage.getItem('maisterniasnu_' + key);
                         }
                         
                         return data ? JSON.parse(data) : defaultValue;
@@ -235,17 +213,11 @@
                     }
                 },
                 
-                // Видаляє дані з усіх сховищ
+                // Видаляє дані зі сховища
                 remove: function(key) {
                     try {
                         if (window.localStorage) {
                             localStorage.removeItem(key);
-                            localStorage.removeItem('maisterniasnu_' + key); // Для сумісності
-                        }
-                        
-                        if (window.sessionStorage) {
-                            sessionStorage.removeItem(key);
-                            sessionStorage.removeItem('maisterniasnu_' + key); // Для сумісності
                         }
                         
                         return true;
@@ -256,106 +228,14 @@
                 }
             };
             
-            // Міграція даних зі старих ключів до нових (тільки один раз)
-            function migrateCartData() {
-                console.log('Перевірка та міграція даних кошика...');
-                
-                try {
-                    // Всі можливі ключі для кошика
-                    const possibleCartKeys = [
-                        'cart_data',
-                        'maisterniasnu_cart_data',
-                        'cartItems'
-                    ];
-                    
-                    let cartData = [];
-                    
-                    // Функція для об'єднання кошиків
-                    function mergeCartItems(existingCart, newItems) {
-                        if (!Array.isArray(newItems) || newItems.length === 0) return existingCart;
-                        
-                        newItems.forEach(newItem => {
-                            // Перевіряємо чи товар унікальний
-                            const existingItemIndex = existingCart.findIndex(item => 
-                                item.name === newItem.name && item.price === newItem.price
-                            );
-                            
-                            if (existingItemIndex >= 0) {
-                                // Об'єднуємо кількість товарів
-                                existingCart[existingItemIndex].quantity += newItem.quantity || 1;
-                            } else {
-                                // Додаємо новий товар
-                                existingCart.push(newItem);
-                            }
-                        });
-                        
-                        return existingCart;
-                    }
-                    
-                    // Збираємо дані з усіх можливих джерел
-                    for (const key of possibleCartKeys) {
-                        let items = null;
-                        
-                        if (window.localStorage) {
-                            const localData = localStorage.getItem(key);
-                            if (localData) {
-                                try {
-                                    items = JSON.parse(localData);
-                                    console.log(`Знайдено дані в localStorage з ключем ${key}:`, items);
-                                    cartData = mergeCartItems(cartData, items);
-                                } catch (e) {
-                                    console.error(`Помилка розбору даних з localStorage [${key}]:`, e);
-                                }
-                            }
-                        }
-                        
-                        if (window.sessionStorage) {
-                            const sessionData = sessionStorage.getItem(key);
-                            if (sessionData) {
-                                try {
-                                    items = JSON.parse(sessionData);
-                                    console.log(`Знайдено дані в sessionStorage з ключем ${key}:`, items);
-                                    cartData = mergeCartItems(cartData, items);
-                                } catch (e) {
-                                    console.error(`Помилка розбору даних з sessionStorage [${key}]:`, e);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Зберігаємо об'єднані дані
-                    if (cartData.length > 0) {
-                        console.log('Об\'єднані дані кошика:', cartData);
-                        Storage.set('cart_data', cartData);
-                        
-                        // Очищаємо старі дані
-                        if (window.localStorage) {
-                            localStorage.removeItem('maisterniasnu_cart_data');
-                            localStorage.removeItem('cartItems');
-                        }
-                        if (window.sessionStorage) {
-                            sessionStorage.removeItem('maisterniasnu_cart_data');
-                            sessionStorage.removeItem('cartItems');
-                        }
-                    }
-                    
-                    return cartData;
-                } catch (e) {
-                    console.error('Помилка міграції даних кошика:', e);
-                    return [];
-                }
-            }
-            
             // Отримуємо дані кошика
             function getCart() {
-                const cart = Storage.get('cart_data', []);
-                console.log('Поточні дані кошика:', cart);
-                return cart;
+                return Storage.get('cart_data', []);
             }
             
             // Оновлення лічильника кошика
             function updateCartCounter() {
-                const cartData = Storage.get('cart_data', []);
+                const cartData = getCart();
                 let totalItems = 0;
                 
                 cartData.forEach(item => {
@@ -567,37 +447,6 @@
                 }
             }
             
-            // Захисне відновлення пошкоджених даних
-            function sanitizeCartData() {
-                const cart = getCart();
-                if (!Array.isArray(cart)) {
-                    Storage.set('cart_data', []);
-                    return;
-                }
-                
-                // Перевіряємо всі товари на правильність полів, але з менш строгими умовами
-                const sanitizedCart = cart.filter(item => {
-                    return item && typeof item === 'object';
-                }).map(item => {
-                    // Нормалізуємо дані товару
-                    return {
-                        name: item.name || 'Товар без назви',
-                        price: typeof item.price === 'number' && item.price > 0 ? item.price : 0,
-                        quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
-                        image: item.image || 'https://via.placeholder.com/150?text=Товар'
-                    };
-                });
-                
-                if (sanitizedCart.length !== cart.length) {
-                    console.log('Відновлені дані кошика:', sanitizedCart);
-                    Storage.set('cart_data', sanitizedCart);
-                }
-            }
-            
-            // Міграція і перевірка даних перед відображенням
-            migrateCartData();
-            sanitizeCartData();
-            
             // Ініціалізація сторінки
             renderCart();
             updateCartCounter();
@@ -613,12 +462,88 @@
                 checkoutButton.addEventListener('click', checkout);
             }
             
+            // Додавання можливості швидкого додавання товару в кошик для тестування
+            const addTestItem = document.createElement('div');
+            addTestItem.className = 'fixed bottom-5 right-5 bg-primary text-white p-3 rounded-lg shadow-lg cursor-pointer hover:bg-secondary transition-colors';
+            addTestItem.innerHTML = 'Додати тестовий товар';
+            addTestItem.addEventListener('click', function() {
+                addToCart({
+                    name: 'Тестовий товар ' + Math.floor(Math.random() * 1000),
+                    price: Math.floor(Math.random() * 1000) + 100,
+                    image: 'https://via.placeholder.com/150?text=Тест',
+                    quantity: 1
+                });
+                alert('Товар додано у кошик!');
+            });
+            document.body.appendChild(addTestItem);
+            
             // Обробка помилок
             window.addEventListener('error', function(e) {
                 console.error('Перехоплена помилка на сторінці кошика:', e.message);
-                // Тут можна додати додаткову логіку для відновлення після помилок
             });
         });
+        
+        // Глобальна функція для додавання товару в кошик (доступна з будь-якої сторінки)
+        function addToCart(product) {
+            if (!product || !product.name || !product.price) {
+                console.error('Неможливо додати товар: відсутні обов\'язкові параметри');
+                return false;
+            }
+            
+            try {
+                // Отримуємо поточний кошик
+                let cart = [];
+                if (window.localStorage) {
+                    const cartData = localStorage.getItem('cart_data');
+                    if (cartData) {
+                        try {
+                            cart = JSON.parse(cartData);
+                            if (!Array.isArray(cart)) cart = [];
+                        } catch (e) {
+                            cart = [];
+                        }
+                    }
+                }
+                
+                // Перевіряємо, чи товар вже є в кошику
+                const existingProductIndex = cart.findIndex(item => 
+                    item.name === product.name && item.price === product.price
+                );
+                
+                if (existingProductIndex >= 0) {
+                    // Якщо товар вже є в кошику, збільшуємо кількість
+                    cart[existingProductIndex].quantity += (product.quantity || 1);
+                } else {
+                    // Якщо товару немає в кошику, додаємо його
+                    cart.push({
+                        name: product.name,
+                        price: product.price,
+                        image: product.image || 'https://via.placeholder.com/150?text=Товар',
+                        quantity: product.quantity || 1
+                    });
+                }
+                
+                // Зберігаємо оновлений кошик
+                if (window.localStorage) {
+                    localStorage.setItem('cart_data', JSON.stringify(cart));
+                }
+                
+                // Оновлюємо лічильник, якщо ми на сторінці з кошиком
+                if (typeof updateCartCounter === 'function') {
+                    updateCartCounter();
+                    
+                    // Якщо ми на сторінці кошика, оновлюємо відображення
+                    if (typeof renderCart === 'function') {
+                        renderCart();
+                    }
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Помилка при додаванні товару в кошик:', e);
+                return false;
+            }
+        }
     </script>
 </body>
 </html>
