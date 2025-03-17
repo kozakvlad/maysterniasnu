@@ -103,7 +103,7 @@
         
         <div class="bg-white rounded-lg shadow-md p-6">
             <!-- Порожній кошик -->
-            <div id="cart-empty" class="text-center py-10 hidden">
+            <div id="cart-empty" class="text-center py-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -178,9 +178,51 @@
                 });
             }
             
+            // Функція для перевірки, чи сайт запущено на GitHub Pages
+            function isGitHubPages() {
+                return window.location.hostname.includes('github.io');
+            }
+            
+            // Функція для отримання даних з локального сховища з урахуванням GitHub Pages
+            function getLocalData(key, defaultValue) {
+                try {
+                    // Для GitHub Pages додаємо префікс, щоб уникнути проблем з доменом
+                    const storageKey = isGitHubPages() ? 'maisterniasnu_' + key : key;
+                    
+                    // Спробуємо отримати дані з localStorage замість sessionStorage для GitHub Pages
+                    let data;
+                    if (isGitHubPages()) {
+                        data = localStorage.getItem(storageKey);
+                    } else {
+                        data = sessionStorage.getItem(storageKey);
+                    }
+                    
+                    return data ? JSON.parse(data) : defaultValue;
+                } catch (e) {
+                    console.error(`Помилка при отриманні даних для ${key}:`, e);
+                    return defaultValue;
+                }
+            }
+            
+            // Функція для збереження даних у локальне сховище з урахуванням GitHub Pages
+            function setLocalData(key, value) {
+                try {
+                    const storageKey = isGitHubPages() ? 'maisterniasnu_' + key : key;
+                    const data = JSON.stringify(value);
+                    
+                    if (isGitHubPages()) {
+                        localStorage.setItem(storageKey, data);
+                    } else {
+                        sessionStorage.setItem(storageKey, data);
+                    }
+                } catch (e) {
+                    console.error(`Помилка при збереженні даних для ${key}:`, e);
+                }
+            }
+            
             // Оновлення лічильника кошика
             function updateCartCounter() {
-                const cartData = JSON.parse(sessionStorage.getItem('cart_data') || '[]');
+                const cartData = getLocalData('cart_data', []);
                 let totalItems = 0;
                 
                 cartData.forEach(item => {
@@ -202,12 +244,7 @@
             
             // Отримуємо дані кошика
             function getCart() {
-                try {
-                    return JSON.parse(sessionStorage.getItem('cart_data') || '[]');
-                } catch (e) {
-                    console.error('Помилка при отриманні даних кошика:', e);
-                    return [];
-                }
+                return getLocalData('cart_data', []);
             }
             
             // Відображаємо товари в кошику
@@ -237,16 +274,23 @@
                 let sum = 0;
                 
                 // Додаємо кожен товар в контейнер
-        cart.forEach((item, index) => {
+                cart.forEach((item, index) => {
                     const itemTotal = item.price * item.quantity;
                     sum += itemTotal;
+                    
+                    // Виправляємо відносні шляхи для зображень на GitHub Pages
+                    let imagePath = item.image;
+                    if (isGitHubPages() && !imagePath.startsWith('http')) {
+                        // Додаємо правильний префікс базового URL для GitHub Pages
+                        imagePath = '/maisterniasnu/' + imagePath.replace(/^\//, '');
+                    }
                     
                     const itemElement = document.createElement('div');
                     itemElement.className = 'cart-item py-4 md:py-6 flex flex-col md:flex-row items-start gap-4';
                     
                     itemElement.innerHTML = `
                         <div class="md:w-1/5">
-                            <img src="${item.image}" alt="${item.name}" class="w-full h-32 object-cover rounded-md">
+                            <img src="${imagePath}" alt="${item.name}" class="w-full h-32 object-cover rounded-md" onerror="this.src='https://via.placeholder.com/150?text=Товар'; this.onerror=null;">
                         </div>
                         <div class="md:w-2/5 flex-grow">
                             <h3 class="text-lg font-semibold text-primary">${item.name}</h3>
@@ -302,7 +346,7 @@
             function removeItem(index) {
                 const cart = getCart();
                 cart.splice(index, 1);
-                sessionStorage.setItem('cart_data', JSON.stringify(cart));
+                setLocalData('cart_data', cart);
                 renderCart();
                 updateCartCounter();
             }
@@ -317,22 +361,22 @@
                     cart.splice(index, 1);
                 }
                 
-                sessionStorage.setItem('cart_data', JSON.stringify(cart));
-    renderCart();
+                setLocalData('cart_data', cart);
+                renderCart();
                 updateCartCounter();
             }
             
             // Очищення кошика
             function clearCart() {
-                sessionStorage.setItem('cart_data', '[]');
-    renderCart();
+                setLocalData('cart_data', []);
+                renderCart();
                 updateCartCounter();
             }
             
             // Оформлення замовлення
             function checkout() {
                 // Перевіряємо, чи авторизований користувач
-                const userData = localStorage.getItem('user_data');
+                const userData = getLocalData('user_data', null);
                 if (!userData) {
                     // Якщо користувач не авторизований, перенаправляємо на сторінку авторизації
                     window.location.href = 'auth.html';
@@ -349,10 +393,10 @@
             
             // Функція для перевірки статусу авторизації
             function checkAuthStatus() {
-                const userData = localStorage.getItem('user_data');
+                const userData = getLocalData('user_data', null);
                 if (userData) {
                     // Користувач авторизований
-                    updateUIAfterLogin(JSON.parse(userData));
+                    updateUIAfterLogin(userData);
                 }
             }
             
@@ -376,6 +420,33 @@
                     `;
                 }
             }
+            
+            // Створення демо-товарів для тестування на GitHub Pages
+            function createDemoProducts() {
+                if (isGitHubPages() && getCart().length === 0) {
+                    console.log('Створення демо-товарів для GitHub Pages');
+                    const demoProducts = [
+                        {
+                            id: 1,
+                            name: 'Подушка "Комфорт"',
+                            price: 550,
+                            quantity: 1,
+                            image: 'https://via.placeholder.com/150?text=Подушка'
+                        },
+                        {
+                            id: 2,
+                            name: 'Ковдра "Пухнаста"',
+                            price: 1200,
+                            quantity: 1,
+                            image: 'https://via.placeholder.com/150?text=Ковдра'
+                        }
+                    ];
+                    setLocalData('cart_data', demoProducts);
+                }
+            }
+            
+            // Ініціалізація демо-даних для GitHub Pages
+            createDemoProducts();
             
             // Ініціалізація сторінки
             renderCart();
