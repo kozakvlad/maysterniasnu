@@ -45,7 +45,7 @@
         .modal-content {
             background-color: #fff;
             margin: auto;
-            width: 80%;
+            width: 90%;
             max-width: 800px;
             border-radius: 8px;
             overflow: hidden;
@@ -74,6 +74,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        
+        /* Додаткові стилі для мобільних пристроїв */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 16px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .product-card {
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
@@ -593,8 +610,8 @@
             // Ініціалізація лічильника при завантаженні сторінки
             updateCartCounter();
             
-            // Оновлюємо лічильник після додавання товару в кошик
-            window.addToCartDirect = function(button) {
+            // Функція додавання товару в кошик
+            window.addToCartDirect = function(event) {
                 event.preventDefault();
                 
                 const button = event.currentTarget;
@@ -636,10 +653,9 @@
                 }
                 
                 // Зберігаємо оновлений кошик
-                const cartJson = JSON.stringify(cartData);
-                sessionStorage.setItem('cart_data', cartJson);
+                sessionStorage.setItem('cart_data', JSON.stringify(cartData));
                 
-                console.log('Кошик оновлено:', cartJson);
+                console.log('Кошик оновлено:', JSON.stringify(cartData));
                 
                 // Оновлюємо лічильник товарів
                 updateCartCounter();
@@ -657,22 +673,24 @@
             const modal = document.getElementById('productModal');
             const closeBtn = document.querySelector('.modal-close');
             
-            // Закриття модального вікна при кліку на хрестик
-            closeBtn.addEventListener('click', closeProductModal);
-            
-            // Закриття модального вікна при кліку поза ним
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    closeProductModal();
-                }
-            });
-            
-            // Закриття модального вікна при натисканні Escape
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    closeProductModal();
-                }
-            });
+            if (modal && closeBtn) {
+                // Закриття модального вікна при кліку на хрестик
+                closeBtn.addEventListener('click', closeProductModal);
+                
+                // Закриття модального вікна при кліку поза ним
+                window.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closeProductModal();
+                    }
+                });
+                
+                // Закриття модального вікна при натисканні Escape
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeProductModal();
+                    }
+                });
+            }
         }
         
         // Відкриття модального вікна з інформацією про товар
@@ -684,47 +702,51 @@
             const modalAddToCart = document.getElementById('modalAddToCart');
             const modalDescription = document.getElementById('modalDescription');
             
-            // Заповнюємо дані товару
-            modalTitle.textContent = name;
-            modalImage.src = image;
-            modalImage.alt = name;
-            modalPrice.textContent = `${price} грн`;
-            
-            // Оновлюємо опис в залежності від зображення
-            if (image.includes('photo1') || image.includes('photo2') || image.includes('photo7') || image.includes('photo12')) {
-                modalDescription.innerHTML = `
-                    <p>Покривало-капа 150х200 см.</p>
-                    <p>Щільність 300г/м2.</p>
-                    <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
-                    <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
-                    <p>Машинне прання, 30°</p>
-                `;
-            } else {
-                modalDescription.innerHTML = `
-                    <p>Покривало-капа 220х240 см.</p>
-                    <p>Щільність 300г/м2.</p>
-                    <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
-                    <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
-                    <p>Машинне прання, 30°</p>
-                `;
+            if (modal && modalTitle && modalImage && modalPrice && modalAddToCart && modalDescription) {
+                // Заповнюємо дані товару
+                modalTitle.textContent = name;
+                modalImage.src = image;
+                modalImage.alt = name;
+                modalPrice.textContent = `${price} грн`;
+                
+                // Оновлюємо опис в залежності від зображення
+                if (image.includes('photo1') || image.includes('photo2') || image.includes('photo7') || image.includes('photo12')) {
+                    modalDescription.innerHTML = `
+                        <p>Покривало-капа 150х200 см.</p>
+                        <p>Щільність 300г/м2.</p>
+                        <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
+                        <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
+                        <p>Машинне прання, 30°</p>
+                    `;
+                } else {
+                    modalDescription.innerHTML = `
+                        <p>Покривало-капа 220х240 см.</p>
+                        <p>Щільність 300г/м2.</p>
+                        <p>Покривала плетені на станку, високої якості виробництва, нитка бавовна+акріл 50/50 пропускає повітря, не втрачає колір після прання, не скочується.</p>
+                        <p>Багатофункціональне, можливо застеляти ліжко, вкриватися, використовувати як простирадло. Підійде до будь-якого сезону, буде неймовірно красивим доповненням вашого ліжка, інтер'єру.</p>
+                        <p>Машинне прання, 30°</p>
+                    `;
+                }
+                
+                // Оновлюємо атрибути кнопки "Додати в кошик"
+                modalAddToCart.setAttribute('data-id', id);
+                modalAddToCart.setAttribute('data-name', name);
+                modalAddToCart.setAttribute('data-price', price);
+                modalAddToCart.setAttribute('data-image', image);
+                
+                // Показуємо модальне вікно
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden'; // Забороняємо прокрутку сторінки
             }
-            
-            // Оновлюємо атрибути кнопки "Додати в кошик"
-            modalAddToCart.setAttribute('data-id', id);
-            modalAddToCart.setAttribute('data-name', name);
-            modalAddToCart.setAttribute('data-price', price);
-            modalAddToCart.setAttribute('data-image', image);
-            
-            // Показуємо модальне вікно
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Забороняємо прокрутку сторінки
         }
         
         // Закриття модального вікна
         function closeProductModal() {
             const modal = document.getElementById('productModal');
-            modal.classList.remove('show');
-            document.body.style.overflow = ''; // Дозволяємо прокрутку сторінки
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = ''; // Дозволяємо прокрутку сторінки
+            }
         }
     </script>
 </body>
