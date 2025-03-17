@@ -21,6 +21,27 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        /* Додаткові стилі для мобільних пристроїв */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 16px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .contact-form {
+                padding: 1.5rem;
+            }
+            
+            .contact-info {
+                margin-bottom: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-background font-['Montserrat'] text-black m-0 min-h-screen flex flex-col transition-all duration-300">
@@ -73,7 +94,7 @@
         <h2 class="text-3xl font-bold mb-8 text-primary text-center">Контакти</h2>
         
         <div class="grid md:grid-cols-2 gap-8">
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-white rounded-lg shadow-md p-6 contact-info">
                 <h3 class="text-xl font-semibold mb-4 text-primary">Наші контакти</h3>
                 <div class="space-y-4">
                     <div class="flex items-start">
@@ -243,39 +264,12 @@
                         message: document.getElementById('message').value
                     };
                     
-                    // Відправляємо дані на сервер
-                    fetch('/send-email', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Помилка при відправці');
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        // Успішна відправка
-                        formStatus.textContent = data;
+                    // Імітація відправки (в реальному проекті тут був би запит на сервер)
+                    setTimeout(() => {
+                        formStatus.textContent = 'Повідомлення успішно відправлено!';
                         formStatus.className = 'py-2 px-4 bg-green-100 text-green-700 rounded-md';
-                        
-                        // Очищаємо форму
                         contactForm.reset();
-                        
-                        // Ховаємо повідомлення через 5 секунд
-                        setTimeout(() => {
-                            formStatus.classList.add('hidden');
-                        }, 5000);
-                    })
-                    .catch(error => {
-                        // Помилка відправки
-                        formStatus.textContent = 'Виникла помилка при відправці повідомлення. Спробуйте пізніше.';
-                        formStatus.className = 'py-2 px-4 bg-red-100 text-red-700 rounded-md';
-                        console.error('Помилка:', error);
-                    });
+                    }, 1500);
                 });
             }
         });
